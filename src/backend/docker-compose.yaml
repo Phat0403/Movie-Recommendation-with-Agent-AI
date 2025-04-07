@@ -1,0 +1,38 @@
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo_data:/data/db
+
+  mongo-import:
+    build: 
+      context: .
+      dockerfile: Dockerfile.mongo
+    container_name: mongo-import
+    depends_on:
+      - mongo
+    command: ["bash", "/scripts/import.sh"]
+    restart: "no"
+
+  mysql:  
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: movie_recommendation
+    ports:
+      - "3306:3306"
+    # volumes:
+      # - mysql_data:/var/lib/mysql
+
+volumes:
+  mongo_data: 
+  mysql_data:

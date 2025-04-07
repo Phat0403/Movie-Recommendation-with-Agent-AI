@@ -80,12 +80,12 @@ class MovieEmbedder:
 
 if __name__ == "__main__":
     movie_embedder = MovieEmbedder()
-    movie_embedder.run()
+    # movie_embedder.run()
 
     collection = movie_embedder.get_chroma_collection_client()
     result = collection.query(
-        query_texts=["la la land"],
-        n_results=10
+        query_texts=["A jazz musician and an aspiring actress fall in love"],
+        n_results=5
     )
     
     for res in result["documents"][0]:

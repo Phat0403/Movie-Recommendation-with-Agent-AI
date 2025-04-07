@@ -6,3 +6,10 @@ sentence-transformers
 transformers
 torch
 chromadb
+python-jose[cryptography] 
+passlib==1.7.4
+bcrypt==4.0.1 
+sqlalchemy
+pydantic-settings
+pymysql
+uvicorn
