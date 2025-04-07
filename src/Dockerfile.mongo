@@ -1,9 +1,0 @@
-FROM mongo:6.0
-
-WORKDIR /scripts
-
-COPY data/* /scripts/
-
-RUN chmod +x /scripts/import.sh
-
-CMD ["/scripts/import.sh"]
