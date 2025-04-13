@@ -18,7 +18,7 @@ class UserController:
         """
         return self.db.query(User).filter(User.username == username).first()
 
-    def create_normal_user(self, username: str, password: str):
+    def create_user(self, username: str, password: str, email: str = None, is_admin: bool = False):
         """
         Create a new user in the database.
 
@@ -30,25 +30,7 @@ class UserController:
         Returns:
             User: The created user object.
         """
-        db_user = User(username=username, password=password)
-        self.db.add(db_user)
-        self.db.commit()
-        self.db.refresh(db_user)
-        return db_user
-
-    def create_admin_user(self, username: str, password: str):
-        """
-        Create a new admin user in the database.
-
-        Args:
-            db: Database session.
-            username (str): The username of the user.
-            password (str): The password of the user.
-
-        Returns:
-            User: The created admin user object.
-        """
-        db_user = User(username=username, password=password, is_admin=True)
+        db_user = User(username=username, password=password, email=email, is_admin=is_admin)
         self.db.add(db_user)
         self.db.commit()
         self.db.refresh(db_user)
@@ -67,6 +49,7 @@ class UserController:
         """
         return self.db.query(User).filter(User.username == user_name).first()
 
+
     def delete_user(self, user_name: str):
         """
         Delete a user by username.
@@ -84,3 +67,23 @@ class UserController:
             self.db.commit()
             return True
         return False
+    
+    def update_password(self, user_name: str, new_password: str):
+        """
+        Update the password of a user.
+
+        Args:
+            db: Database session.
+            user_name (str): The username of the user.
+            new_password (str): The new password for the user.
+
+        Returns:
+            User: The updated user object if successful, None otherwise.
+        """
+        db_user = self.db.query(User).filter(User.username == user_name).first()
+        if db_user:
+            db_user.password = new_password
+            self.db.commit()
+            self.db.refresh(db_user)
+            return db_user
+        return None

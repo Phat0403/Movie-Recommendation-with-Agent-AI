@@ -13,3 +13,6 @@ sqlalchemy
 pydantic-settings
 pymysql
 uvicorn
+secure-smtplib
+redis
+python-multipart
