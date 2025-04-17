@@ -34,7 +34,6 @@ def get_current_user(auth_service: AuthService = Depends(get_auth_service), toke
 
 @router.post("/register", response_model=UserInDB)
 def register_user(user: User, auth_service: AuthService = Depends(get_auth_service)):
-    logger.debug(user)
     response = auth_service.register_user(user.username, user.password, user.email, user.is_admin)
     return JSONResponse(content=response, status_code=response.get("status", 200))
 

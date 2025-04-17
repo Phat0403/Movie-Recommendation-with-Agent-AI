@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 today = datetime.today()
-today_str = today.strftime("%Y-%m-%d-%H-%M-%S")
+today_str = today.strftime("%Y-%m-%d")
 log_dir = "logs"
 
 def get_logger(name: str) -> logging.Logger:
@@ -30,7 +30,7 @@ def get_logger(name: str) -> logging.Logger:
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    file_handler = FileHandler(os.path.join(log_dir, f"{today}.log"))
+    file_handler = FileHandler(os.path.join(log_dir, f"{today_str}.log"))
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
