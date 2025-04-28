@@ -26,7 +26,7 @@ def get_redis_client():
     return RedisClient()
 
 @router.get("/me", response_model=UserInDB)
-def get_current_user(auth_service: AuthService = Depends(get_auth_service), token: str = Depends(OAuth2PasswordBearer(tokenUrl="api/v1/users/login"))):
+def get_current_user(auth_service: AuthService = Depends(get_auth_service), token: str = Depends(OAuth2PasswordBearer(tokenUrl="api/login"))):
     user = auth_service.get_current_user_by_token(token)
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -42,12 +42,12 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), auth_service: A
     response = auth_service.login_user(form_data.username, form_data.password)
     return JSONResponse(content=response, status_code=response.get("status", 200))
 
-@router.post("/send_verification_code")
+@router.post("/send-verification-code")
 async def send_verification_code(username: str, auth_service: AuthService = Depends(get_auth_service), redis_client: RedisClient = Depends(get_redis_client)):
     response = await auth_service.send_email_verification(redis_client, username)
     return JSONResponse(content=response, status_code=response.get("status", 200))
 
-@router.post("/reset_password")
+@router.post("/reset-password")
 async def reset_password(code: str, username: str, new_password: str, auth_service: AuthService = Depends(get_auth_service), redis_client: RedisClient = Depends(get_redis_client)):
     response = await auth_service.verify_password_reset_code(redis_client, username, code)
 

@@ -58,12 +58,12 @@ class MovieEmbedder:
         Embed the movie names using the loaded model.
         """
         logger.info("Embedding movie description started")
-        for i in range(0, len(movies_descriptions), 16):
-            logger.info(f"Processing batch {i//16 + 1}/{len(movies_descriptions)//16}")
-            movies_batch = movies_descriptions[i:min(i+16,len(movies_descriptions))]
+        for i in range(0, len(movies_descriptions), 32):
+            logger.info(f"Processing batch {i//32 + 1}/{len(movies_descriptions)//32}")
+            movies_batch = movies_descriptions[i:min(i+32,len(movies_descriptions))]
             movies_ids = [movie.split('_')[0] for movie in movies_batch]
             movies_names = [movie.split('_')[1] for movie in movies_batch]
-            chroma_client_collection.add(
+            chroma_client_collection.upsert(
                 documents=movies_batch,
                 metadatas=[{"name": name} for name in movies_names],
                 ids=movies_ids
@@ -80,12 +80,12 @@ class MovieEmbedder:
 
 if __name__ == "__main__":
     movie_embedder = MovieEmbedder()
-    # movie_embedder.run()
+    movie_embedder.run()
 
     collection = movie_embedder.get_chroma_collection_client()
     result = collection.query(
-        query_texts=["A jazz musician and an aspiring actress fall in love"],
-        n_results=5
+        query_texts=["Utopia"],
+        n_results=10
     )
     
     for res in result["documents"][0]:

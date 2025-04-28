@@ -1,7 +1,3 @@
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends
-from sqlalchemy.orm import Session
-
 from core.auth import create_access_token, get_password_hash, verify_password, email_validation, password_validation, send_email_verification, get_username_from_token, decode_token
 from db.crud_user import UserController
 from db.redis_client import RedisClient
@@ -51,7 +47,7 @@ class AuthService:
             return {"error": "Password must be at least 8 characters long and contain letters and numbers", "status": 400}
 
         hashed_password = get_password_hash(password)
-        user = self.user_controller.create_user(username, hashed_password, email, is_admin)
+        self.user_controller.create_user(username, hashed_password, email, is_admin)
 
         return {"message": "User registered successfully", "status": 201}
 

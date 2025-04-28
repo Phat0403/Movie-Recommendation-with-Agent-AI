@@ -10,7 +10,7 @@ mongoimport --host mongo \
   --collection movies \
   --type csv \
   --headerline \
-  --file /scripts/movies.csv
+  --file /scripts/movies_2020_new.csv
 
 echo "Movies data imported successfully!"
 
@@ -22,7 +22,7 @@ mongoimport --host mongo \
 --collection name_basics \
 --type csv \
 --headerline \
---file /scripts/name_basics.csv
+--file /scripts/new_name_basics.csv
 
 echo "Name basics data imported successfully!"
 
@@ -34,8 +34,32 @@ mongoimport --host mongo \
 --collection ratings \
 --type csv \
 --headerline \
---file /scripts/ratings.csv
+--file /scripts/new_title_ratings.csv
 
 echo "Ratings data imported successfully!"
+
+mongoimport --host mongo \
+--username root \
+--password example \
+--authenticationDatabase admin \
+--db movie_db \
+--collection crew \
+--type csv \
+--headerline \
+--file /scripts/new_title_crew.csv
+
+echo "Title crew data imported successfully!"
+
+mongoimport --host mongo \
+--username root \
+--password example \
+--authenticationDatabase admin \
+--db movie_db \
+--collection principals \
+--type csv \
+--headerline \
+--file /scripts/new_title_principals.csv
+
+echo "Title principals data imported successfully!"
 
 echo "Data imported successfully!"

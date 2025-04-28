@@ -54,7 +54,7 @@ principal_df = principal_df.withColumn("characters", F.trim(col("characters")))
 principal_df = principal_df.withColumn("characters", F.regexp_replace(col("characters"), "\"", ""))
 principal_df = principal_df.withColumn("characters", F.regexp_replace(col("characters"), "[\\[\\]]", ""))
 movie_df = read_data(spark, "/home/data/movies_2020_new.csv", schema=movie_schema)
-principal_df.repartition(100)
+principal_df = principal_df.repartition(16)
 new_principal_df = movie_df.alias("df1").\
                 join(principal_df.alias("df2"), "tconst", "left").\
                 select(

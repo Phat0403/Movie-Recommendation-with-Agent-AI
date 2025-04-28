@@ -40,11 +40,15 @@ movie_schema = StructType([
 title_ratings_schema = StructType([
     StructField("tconst", StringType(), True),
     StructField("averageRating", FloatType(), True),
-    StructField("numVotes", IntegerType(), True)
+    StructField("numVotes", FloatType(), True)
 ])
 
 movie_df = read_data(spark, "/home/data/movies_2020_new.csv", schema=movie_schema)
-ratings_df = read_data(spark, "/home/data/title_ratings.csv", schema=title_ratings_schema)
+ratings_df = read_data(spark, "/home/data/new_title_ratings.csv", schema=title_ratings_schema)
+
+# Fill averageRating and numVotes with 0 if they are null
+ratings_df = ratings_df.withColumn("averageRating", F.when(col("averageRating").isNull(), 0).otherwise(col("averageRating")))
+ratings_df = ratings_df.withColumn("numVotes", F.when(col("numVotes").isNull(), 0).otherwise(col("numVotes")))
 
 new_ratings_df = movie_df.alias("df1").\
                 join(ratings_df.alias("df2"), "tconst", "left").\
@@ -53,5 +57,4 @@ new_ratings_df = movie_df.alias("df1").\
                     col("averageRating"),
                     col("numVotes")
                 )
-
-save_data(new_ratings_df, "/home/data/new_title_ratings")
+save_data(ratings_df, "/home/data/new_title_ratings")

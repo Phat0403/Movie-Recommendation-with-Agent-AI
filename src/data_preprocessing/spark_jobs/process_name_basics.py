@@ -41,14 +41,14 @@ principal_schema = StructType([
 
 name_basics_df = read_data(spark, "/home/data/name_basics.csv", schema=name_basics_schema)
 
-name_basics_df = name_basics_df.withColumn("knownForTitles", split(col("knownForTitles"), ","))
-name_basics_df.withColumn("knownForTitles", F.coalesce(col("knownForTitles"), F.array(F.lit("None"))))
-name_basics_df = name_basics_df.\
-                withColumn("tconst", explode(col("knownForTitles"))).\
-                drop("knownForTitles")
+# name_basics_df = name_basics_df.withColumn("knownForTitles", split(col("knownForTitles"), ","))
+# name_basics_df.withColumn("knownForTitles", F.coalesce(col("knownForTitles"), F.array(F.lit("None"))))
+# name_basics_df = name_basics_df.\
+#                 withColumn("tconst", explode(col("knownForTitles"))).\
+#                 drop("knownForTitles")
                 
-principal_df = read_data(spark, "/home/data/new_title_principals", schema=principal_schema)
-principal_df.repartition(100)
+principal_df = read_data(spark, "/home/data/new_title_principals.csv", schema=principal_schema)
+principal_df = principal_df.repartition(16)
 new_name_basics_df = principal_df.alias("df1").\
                 join(name_basics_df, "nconst", "left").\
                 select(
@@ -57,10 +57,10 @@ new_name_basics_df = principal_df.alias("df1").\
                     col("birthYear"),
                     col("deathYear"),
                     col("primaryProfession"),
-                    col("df1.tconst")
+                    col("knownForTitles")
                 ).\
-                dropDuplicates(["nconst", "tconst"]).\
-                dropna(subset=["nconst", "tconst"])
+                dropDuplicates(["nconst"]).\
+                dropna(subset=["nconst"])
 
 # Save the DataFrame to a CSV file
 save_data(new_name_basics_df, "/home/data/new_name_basics")

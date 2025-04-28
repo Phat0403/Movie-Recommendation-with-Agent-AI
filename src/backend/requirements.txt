@@ -16,3 +16,7 @@ uvicorn
 secure-smtplib
 redis
 python-multipart
+motor
+bson
+mongoengine
+elasticsearch==8.6.0

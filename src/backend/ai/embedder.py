@@ -22,8 +22,8 @@ class Embedder:
 if __name__ == "__main__":
     # Example usage
     embedder = Embedder("intfloat/multilingual-e5-base")
-    input_texts = ['query: how much protein should a female eat',
-                'query: phụ nữ nên ăn bao nhiêu đạm']
+    input_texts = ["query: tt32001464_Utopia_Utopia_['Action', 'Thriller']_A soldier searching for his missing wife breaks into a high-tech facility, believing she's been caught in a human trafficking ring. But beyond its walls, he finds a surreal, futuristic fantasy park where reality and illusion blur. As he navigates this seductive and dangerous world, a shocking truth pulls him deeper into a deadly game where nothing is as it seems._['Moe Dunford', 'Charlotte Vega', 'Michael D. Xavier', 'Alix Villaret', 'Wanda Banda', 'Maddy Ambus', 'Jade Coatsworth', 'Daniel Bernhardt', 'Lucy Akhurst', 'Philipp Boos', 'Rich Walters', 'Frank Meyer', 'Trevor Mirosh', 'Fern Champion', 'Preslava Hristova', 'Ivan Ranghelov']",
+                'query: Utopia']
     embeddings = embedder.embed(input_texts)
     scores = (embeddings[:1] @ embeddings[1:].T) * 100
     print(scores)
