@@ -12,4 +12,4 @@ class UserInDB(User):
     is_admin: bool = Field(False, description="Is the user an admin")
     
     class Config:
-        orm_mode = True
+        from_attributes = True

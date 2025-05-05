@@ -16,6 +16,8 @@ logger = get_logger(__name__)
 
 router = APIRouter()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
+
 def get_user_controller(db: Session = Depends(get_db)):
     return UserController(db)
 
@@ -26,7 +28,7 @@ def get_redis_client():
     return RedisClient()
 
 @router.get("/me", response_model=UserInDB)
-def get_current_user(auth_service: AuthService = Depends(get_auth_service), token: str = Depends(OAuth2PasswordBearer(tokenUrl="api/login"))):
+def get_current_user(auth_service: AuthService = Depends(get_auth_service), token: str = Depends(oauth2_scheme)):
     user = auth_service.get_current_user_by_token(token)
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid token")

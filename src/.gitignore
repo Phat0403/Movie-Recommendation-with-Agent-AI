@@ -1,4 +1,4 @@
 *.csv
 *.crc
 */_SUCCESS
-*/data/*
+*/data/*.csv

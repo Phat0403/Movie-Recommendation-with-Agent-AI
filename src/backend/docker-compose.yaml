@@ -12,15 +12,15 @@ services:
     volumes:
       - mongo_data:/data/db
 
-  # mongo-import:
-  #   build: 
-  #     context: .
-  #     dockerfile: Dockerfile.mongo
-  #   container_name: mongo-import
-  #   depends_on:
-  #     - mongo
-  #   entrypoint: ["/scripts/import.sh"]
-  #   restart: "no"
+  mongo-import:
+    build: 
+      context: .
+      dockerfile: Dockerfile.mongo
+    container_name: mongo-import
+    depends_on:
+      - mongo
+    entrypoint: ["/scripts/import.sh"]
+    restart: "no"
 
   mysql:  
     image: mysql:8.0
