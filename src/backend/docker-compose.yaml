@@ -19,7 +19,8 @@ services:
     container_name: mongo-import
     depends_on:
       - mongo
-    entrypoint: ["/scripts/import.sh"]
+    entrypoint: ["bash"]
+    command: ["/scripts/import.sh"]
     restart: "no"
 
   mysql:  
