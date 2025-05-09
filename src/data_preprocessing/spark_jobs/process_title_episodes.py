@@ -56,4 +56,5 @@ episode_df = movie_df.alias("df1").\
             col("df2.episodeNumber")
         )
 
-episode_df.where(col("parentTconst").isNotNull()).show(50)
+# episode_df.where(col("parentTconst").isNotNull()).show(50)
+save_data(episode_df, "/home/data/new_title_episodes")

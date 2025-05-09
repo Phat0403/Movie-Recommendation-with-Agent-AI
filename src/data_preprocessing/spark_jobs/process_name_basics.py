@@ -47,7 +47,7 @@ name_basics_df = read_data(spark, "/home/data/name_basics.csv", schema=name_basi
 #                 withColumn("tconst", explode(col("knownForTitles"))).\
 #                 drop("knownForTitles")
                 
-principal_df = read_data(spark, "/home/data/new_title_principals.csv", schema=principal_schema)
+principal_df = read_data(spark, "/home/data/new_title_principals", schema=principal_schema)
 principal_df = principal_df.repartition(16)
 new_name_basics_df = principal_df.alias("df1").\
                 join(name_basics_df, "nconst", "left").\

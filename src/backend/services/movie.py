@@ -55,30 +55,18 @@ class MovieService:
                 }
             },
             { "$unwind": "$principals" },
-            {
-                "$match": {
-                    "$or": [
-                        { "principals.category": "actor" },
-                        { "principals.category": "actress" }
-                    ]
-                }
-            },
             { "$group": {
             "_id": "$_id",  
             "tconst": { "$first": "$tconst" },
             "primaryTitle": { "$first": "$primaryTitle" },
             "startYear": { "$first": "$startYear" },
             "genres": { "$first": "$genres" },
-            "nconst": { "$addToSet": "$principals.nconst" }
+            "nconst": { "$addToSet": "$principals.nconst" },
+            "posterPath": { "$first": "$posterPath" },
+            "backdropPath": { "$first": "$backdropPath" },
+            "trailerPath": { "$first": "$trailerPath" },
+            "description": { "$first": "$description" }
             }
-            },
-            {
-                "$lookup": {
-                    "from": "title_basics",
-                    "localField": "tconst",
-                    "foreignField": "tconst",
-                    "as": "title_basics"
-                }
             },
             {
                 "$lookup": {
@@ -104,7 +92,7 @@ class MovieService:
                 "startYear": 1,
                 "runtimeMinutes": 1,
                 "genres": 1,
-                "rating": { "$arrayElemAt": ["$rating.rating", 0] },
+                "rating": { "$arrayElemAt": ["$rating.averageRating", 0] },
                 "numVotes": { "$arrayElemAt": ["$rating.numVotes", 0] },
                 "name": "$name_basics.primaryName",
                 "nconst": "$name_basics.nconst",
@@ -265,8 +253,8 @@ async def main():
     movie_service = MovieService(mongo_client, es_client)
     
     print("=== Get Movies ===")
-    movies = await movie_service.get_movies_by_nconst("nm0276169")
-    print(movies)
+    movies = await movie_service.get_movie_description_by_tconst("tt0070596")
+    # print(movies)
     # print(type(movie[0]["genres"]))
     for movie in movies:
         print(movie)

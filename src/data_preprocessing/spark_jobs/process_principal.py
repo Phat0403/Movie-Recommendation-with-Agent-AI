@@ -46,7 +46,7 @@ movie_schema = StructType([
     StructField("description", StringType(), True)
 ])
 
-principal_df = read_data(spark, "/home/data/title_principals-001.csv", schema=principal_schema)
+principal_df = read_data(spark, "/home/data/title_principals.csv", schema=principal_schema)
 principal_df = principal_df.withColumn("characters", F.split(col("characters"), ","))
 principal_df = principal_df.withColumn("characters", F.coalesce(col("characters"), F.array(F.lit("None"))))
 principal_df = principal_df.withColumn("characters", F.explode(col("characters")))

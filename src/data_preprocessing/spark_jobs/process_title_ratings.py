@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.functions import col, broadcast
+from pyspark.sql.functions import col, length
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
 
 def read_data(spark, file_path, schema=None):
@@ -44,7 +44,7 @@ title_ratings_schema = StructType([
 ])
 
 movie_df = read_data(spark, "/home/data/movies_2020_new.csv", schema=movie_schema)
-ratings_df = read_data(spark, "/home/data/new_title_ratings.csv", schema=title_ratings_schema)
+ratings_df = read_data(spark, "/home/data/title_ratings.csv", schema=title_ratings_schema)
 
 # Fill averageRating and numVotes with 0 if they are null
 ratings_df = ratings_df.withColumn("averageRating", F.when(col("averageRating").isNull(), 0).otherwise(col("averageRating")))
@@ -52,9 +52,11 @@ ratings_df = ratings_df.withColumn("numVotes", F.when(col("numVotes").isNull(), 
 
 new_ratings_df = movie_df.alias("df1").\
                 join(ratings_df.alias("df2"), "tconst", "left").\
+                where(col("df1.tconst").isNotNull()).\
                 select(
                     col("df1.tconst"),
                     col("averageRating"),
                     col("numVotes")
                 )
-save_data(ratings_df, "/home/data/new_title_ratings")
+
+save_data(new_ratings_df, "/home/data/new_title_ratings")

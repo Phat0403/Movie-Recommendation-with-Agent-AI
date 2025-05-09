@@ -1,8 +1,12 @@
 Put data in backend/data \
+Run code to preprocess movie file:
+```
+python convert.py
+```
 Run spark to preprocess data:
 ```
-bash script.sh process_name_basics.py
 bash script.sh process_principal.py
+bash script.sh process_name_basics.py
 bash script.sh process_title_crew.py
 bash script.sh process_title_episodes.py
 bash script.sh process_title_ratings.py
