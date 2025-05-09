@@ -10,9 +10,7 @@ mongoimport --host mongo \
   --collection movies \
   --type csv \
   --headerline \
-  --file /scripts/movies_2020_new.csv \
-  --mode upsert \
-  --upsertFields tconst 
+  --file /scripts/movies_2020_new.csv 
 
 echo "Movies data imported successfully!"
 
@@ -24,9 +22,7 @@ mongoimport --host mongo \
 --collection name_basics \
 --type csv \
 --headerline \
---file /scripts/new_name_basics.csv \
---mode upsert \
---upsertFields nconst
+--file /scripts/new_name_basics.csv
 
 echo "Name basics data imported successfully!"
 
@@ -38,9 +34,7 @@ mongoimport --host mongo \
 --collection ratings \
 --type csv \
 --headerline \
---file /scripts/new_title_ratings.csv \
---mode upsert \
---upsertFields tconst
+--file /scripts/new_title_ratings.csv 
 
 echo "Ratings data imported successfully!"
 
@@ -52,9 +46,7 @@ mongoimport --host mongo \
 --collection crew \
 --type csv \
 --headerline \
---file /scripts/new_title_crew.csv \
---mode upsert \
---upsertFields tconst
+--file /scripts/new_title_crew.csv 
 
 echo "Title crew data imported successfully!"
 
@@ -66,9 +58,7 @@ mongoimport --host mongo \
 --collection principals \
 --type csv \
 --headerline \
---file /scripts/new_title_principals.csv \
---mode upsert \
---upsertFields tconst,nconst
+--file /scripts/new_title_principals.csv
 
 echo "Title principals data imported successfully!"
 

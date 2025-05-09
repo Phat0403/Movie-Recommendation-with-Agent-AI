@@ -3,7 +3,7 @@ from elasticsearch.helpers import bulk
 import pandas as pd
 import csv
 import sys
-csv.field_size_limit(sys.maxsize)
+# csv.field_size_limit(sys.maxsize)
 INDEX = "movie"
 
 # Initialize the Elasticsearch client
