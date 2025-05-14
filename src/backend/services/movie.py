@@ -28,7 +28,7 @@ class MovieService:
         # Calculate the skip value based on the page number and offset
         skip = page * offset
         movies = await collection\
-        .find({},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
+        .find({},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "backdropPath": 1, "description": 1})\
         .sort([("startYear",-1),("tconst",-1)])\
         .skip(skip).limit(offset).to_list()  # Adjust the length as needed
         return movies
