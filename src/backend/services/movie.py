@@ -1,6 +1,8 @@
 from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
 
+from core.movie import get_current_year
+
 from typing import List, Dict, Any
 
 
@@ -27,11 +29,35 @@ class MovieService:
         collection = self.mongo_client.get_collection(collection_name)
         # Calculate the skip value based on the page number and offset
         skip = page * offset
-        movies = await collection\
-        .find({},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "backdropPath": 1, "description": 1})\
-        .sort([("startYear",-1),("tconst",-1)])\
-        .skip(skip).limit(offset).to_list()  # Adjust the length as needed
-        return movies
+        current_year = get_current_year()
+        # movies = await collection\
+        # .find({ "startYear": current_year},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
+        # .sort([("startYear",-1),("tconst",-1)])\
+        # .skip(skip).limit(offset).to_list()  # Adjust the length as needed
+        # return movies
+        pipeline = [
+            { "$match": { "startYear": current_year } },
+            { "$lookup": {
+                "from": "ratings",
+                "localField": "tconst",
+                "foreignField": "tconst",
+                "as": "rating"
+            }},
+            { "$unwind": "$rating" },
+            { "$sort": { "rating.averageRating": -1, "rating.numVotes": -1 } },
+            { "$skip": skip },
+            { "$limit": offset },
+            { "$project": {
+                "_id": 0,
+                "tconst": 1,
+                "primaryTitle": 1,
+                "startYear": 1,
+                "genres": 1,
+                "posterPath": 1,
+                "description": 1
+            }}
+        ]
+        return await collection.aggregate(pipeline).to_list()
     
     async def get_movie_description_by_tconst(self, tconst: str = "") -> Dict[str, Any]:
         """
