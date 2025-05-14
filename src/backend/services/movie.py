@@ -44,7 +44,7 @@ class MovieService:
                 "as": "rating"
             }},
             { "$unwind": "$rating" },
-            { "$sort": { "rating.averageRating": -1, "rating.numVotes": -1 } },
+            { "$sort": { "rating.numVotes": -1,"rating.averageRating": -1 } },
             { "$skip": skip },
             { "$limit": offset },
             { "$project": {
@@ -54,6 +54,9 @@ class MovieService:
                 "startYear": 1,
                 "genres": 1,
                 "posterPath": 1,
+                "backdropPath": 1,
+                "rating": "$rating.averageRating",
+                "numVotes": "$rating.numVotes",
                 "description": 1
             }}
         ]
@@ -192,6 +195,8 @@ class MovieService:
             }
         ]
         return await sorted_ratings_collection.aggregate(pipeline).to_list()
+    
+    
 
     async def get_movies_by_nconst(self, nconst: str = "") -> List[Dict[str, Any]]:
         """
