@@ -23,7 +23,7 @@ const Header = () => {
         <nav className="hidden lg:flex items-center gap-1 ml-5">
           {navigation.map((nav, index) => {
             return (
-              <div>
+              <div key={index}>
                 <NavLink
                   key={nav.label}
                   to={nav.href}

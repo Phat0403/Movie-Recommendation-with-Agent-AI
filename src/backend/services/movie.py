@@ -2,7 +2,7 @@ from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
 
 from core.movie import get_current_year
-
+from datetime import datetime
 from typing import List, Dict, Any
 
 
@@ -44,7 +44,7 @@ class MovieService:
                 "as": "rating"
             }},
             { "$unwind": "$rating" },
-            { "$sort": { "rating.numVotes": -1,"rating.averageRating": -1 } },
+            { "$sort": { "release_date": -1 } },
             { "$skip": skip },
             { "$limit": offset },
             { "$project": {
@@ -55,12 +55,14 @@ class MovieService:
                 "genres": 1,
                 "posterPath": 1,
                 "backdropPath": 1,
+                "release_date": 1,
                 "rating": "$rating.averageRating",
                 "numVotes": "$rating.numVotes",
                 "description": 1
             }}
         ]
-        return await collection.aggregate(pipeline).to_list()
+        movies = await collection.aggregate(pipeline).to_list(length=None)
+        return movies
     
     async def get_movie_description_by_tconst(self, tconst: str = "") -> Dict[str, Any]:
         """
@@ -166,35 +168,43 @@ class MovieService:
         Returns:
             List[Dict[str, Any]]: A list of movies.
         """
-        # Calculate the skip value based on the page number and page size
+        collection = self.mongo_client.get_collection(collection_name)
+        # Calculate the skip value based on the page number and offset
         skip = page * offset
-        sorted_ratings_collection = self.mongo_client.get_collection("ratings")
+        current_year = get_current_year()
+        # movies = await collection\
+        # .find({ "startYear": current_year},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
+        # .sort([("startYear",-1),("tconst",-1)])\
+        # .skip(skip).limit(offset).to_list()  # Adjust the length as needed
+        # return movies
         pipeline = [
-            { "$sort": { "averageRating": -1 , "numVotes": -1} },
+            { "$match": { "startYear": current_year } },
+            { "$lookup": {
+                "from": "ratings",
+                "localField": "tconst",
+                "foreignField": "tconst",
+                "as": "rating"
+            }},
+            { "$unwind": "$rating" },
+            { "$sort": { "rating.numVotes": -1,"rating.averageRating": -1 } },
             { "$skip": skip },
             { "$limit": offset },
-            {
-                "$lookup": {
-                    "from": "movies",
-                    "localField": "tconst",
-                    "foreignField": "tconst",
-                    "as": "movies"
-                }
-            },
-            { "$unwind": "$movies" },
             { "$project": {
                 "_id": 0,
-                "tconst": "$tconst",
-                "averageRating": 1,
-                "numVotes": 1,
-                "primaryTitle": "$movies.primaryTitle",
-                "startYear": "$movies.startYear",
-                "genres": "$movies.genres",
-                "posterPath": "$movies.posterPath",
-                "description": "$movies.description"}
-            }
+                "tconst": 1,
+                "primaryTitle": 1,
+                "startYear": 1,
+                "genres": 1,
+                "posterPath": 1,
+                "backdropPath": 1,
+                "release_date": 1,
+                "rating": "$rating.averageRating",
+                "numVotes": "$rating.numVotes",
+                "description": 1
+            }}
         ]
-        return await sorted_ratings_collection.aggregate(pipeline).to_list()
+        movies = await collection.aggregate(pipeline).to_list(length=None)
+        return movies
     
     
 

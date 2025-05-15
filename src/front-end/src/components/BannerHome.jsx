@@ -1,28 +1,50 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { FaAngleRight } from "react-icons/fa6";
+import { FaAngleLeft } from "react-icons/fa6";
+import { useState } from "react";
 
-const BannerHome = () => {
-  const {
-    data: bannerData = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["movies"],
-    queryFn: () =>
-      fetch("http://localhost:8000/api/movies").then((res) => {
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return res.json();
-      }),
-  });
+
+
+const BannerHome = ({bannerData}) => {
+  
+  const [currentImage, setCurrentImage] = useState(0);
   console.log(bannerData);
+  const handleNext = () => {
+    // Logic to show the next banner
+    if (currentImage < bannerData.length - 1) {
+      setCurrentImage(currentImage + 1);
+    } else {
+      setCurrentImage(0);
+    }
+  }
+  const handlePrevious = () => {
+    // Logic to show the previous banner
+    if (currentImage > 0) {
+      setCurrentImage(currentImage - 1);
+    } else {
+      setCurrentImage(bannerData.length - 1);
+    }
+  }
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    if (currentImage < bannerData.length - 1) {
+      handleNext();
+    } else {
+      setCurrentImage(0);
+    }
+  }, 5000); // Change image every 5 seconds
+  return () => clearInterval(interval); // Cleanup the interval on component unmount
+}
+, [bannerData, currentImage]);
+
   return (
     <section className="w-full h-full">
       <div className="flex min-h-full max-h-[95hv] overflow-hidden">
         {bannerData.map((data, index) => {
           return (
-            <div className="min-w-full min-h-[450px] lg:min-h-full overflow-hidden relative">
+            <div className="min-w-full min-h-[450px] lg:min-h-full overflow-hidden relative group transition-all" style={{transform: `translateX(${currentImage * -100}%)`}} key={index}>
               <div className="w-full h-full">
                 <img
                   src={data.backdropPath}
@@ -30,8 +52,13 @@ const BannerHome = () => {
                 />
               </div>
               {/*Button next and previous */}
-            <div>
-                
+            <div className="absolute top-0 w-full h-full hidden items-center justify-between px-4 group-hover:flex">
+                <button className="bg-white p-1 rounded-full text-xl z-10 text-black cursor-pointer" onClick={handlePrevious}>
+                  <FaAngleLeft/>
+                </button>
+                <button className="bg-white p-1 rounded-full text-xl z-10 text-black cursor-pointer" onClick={handleNext}>
+                  <FaAngleRight/>
+                </button>
                 </div>
 
 

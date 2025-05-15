@@ -2,7 +2,13 @@
 
 body {
     margin: 0;
+    webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
     @apply bg-neutral-900 text-neutral-300 
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 /* :root {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

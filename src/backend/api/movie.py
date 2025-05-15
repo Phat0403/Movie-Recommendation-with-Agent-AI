@@ -57,7 +57,7 @@ async def get_movie_description(movie_id: str, movie_service: MovieService = Dep
         logging.error(f"Error fetching movie description: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/movies/sorted-by-ratings", response_model=MovieWithRatingList)
+@router.get("/movies/ratings", response_model=MovieWithRatingList)
 async def get_movie_by_ratings(movie_service: MovieService = Depends(get_movie_service), page: int = 0, offset: int = 20):
     """
     Get movies sorted by ratings.
