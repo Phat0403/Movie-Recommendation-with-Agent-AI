@@ -172,6 +172,7 @@ class MovieService:
         # Calculate the skip value based on the page number and offset
         skip = page * offset
         current_year = get_current_year()
+
         # movies = await collection\
         # .find({ "startYear": current_year},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
         # .sort([("startYear",-1),("tconst",-1)])\
@@ -186,7 +187,55 @@ class MovieService:
                 "as": "rating"
             }},
             { "$unwind": "$rating" },
-            { "$sort": { "rating.numVotes": -1,"rating.averageRating": -1 } },
+            { "$sort": { "rating.averageRating": -1 } },
+            { "$skip": skip },
+            { "$limit": offset },
+            { "$project": {
+                "_id": 0,
+                "tconst": 1,
+                "primaryTitle": 1,
+                "startYear": 1,
+                "genres": 1,
+                "posterPath": 1,
+                "backdropPath": 1,
+                "release_date": 1,
+                "rating": "$rating.averageRating",
+                "numVotes": "$rating.numVotes",
+                "description": 1
+            }}
+        ]
+        movies = await collection.aggregate(pipeline).to_list(length=None)
+        return movies
+    async def get_movies_by_trending(self, collection_name: str = "movies", page: int = 0, offset: int = 10) -> List[Dict[str, Any]]:
+        """
+        Retrieve movies by ratings.
+
+        Args:
+            rating (float): The rating of the movie.
+            collection_name (str): The name of the collection.
+
+        Returns:
+            List[Dict[str, Any]]: A list of movies.
+        """
+        collection = self.mongo_client.get_collection(collection_name)
+        # Calculate the skip value based on the page number and offset
+        skip = page * offset
+        current_year = get_current_year()
+        # movies = await collection\
+        # .find({ "startYear": current_year},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
+        # .sort([("startYear",-1),("tconst",-1)])\
+        # .skip(skip).limit(offset).to_list()  # Adjust the length as needed
+        # return movies
+        pipeline = [
+            { "$match": { "startYear": current_year } },
+            { "$lookup": {
+                "from": "ratings",
+                "localField": "tconst",
+                "foreignField": "tconst",
+                "as": "rating"
+            }},
+            { "$unwind": "$rating" },
+            { "$sort": { "rating.weightTrending": -1 } },
             { "$skip": skip },
             { "$limit": offset },
             { "$project": {
@@ -206,7 +255,54 @@ class MovieService:
         movies = await collection.aggregate(pipeline).to_list(length=None)
         return movies
     
-    
+    async def get_movies_by_numVote(self, collection_name: str = "movies", page: int = 0, offset: int = 10) -> List[Dict[str, Any]]:
+        """
+        Retrieve movies by ratings.
+
+        Args:
+            rating (float): The rating of the movie.
+            collection_name (str): The name of the collection.
+
+        Returns:
+            List[Dict[str, Any]]: A list of movies.
+        """
+        collection = self.mongo_client.get_collection(collection_name)
+        # Calculate the skip value based on the page number and offset
+        skip = page * offset
+        current_year = get_current_year()
+        # movies = await collection\
+        # .find({ "startYear": current_year},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
+        # .sort([("startYear",-1),("tconst",-1)])\
+        # .skip(skip).limit(offset).to_list()  # Adjust the length as needed
+        # return movies
+        pipeline = [
+            { "$match": { "startYear": current_year } },
+            { "$lookup": {
+                "from": "ratings",
+                "localField": "tconst",
+                "foreignField": "tconst",
+                "as": "rating"
+            }},
+            { "$unwind": "$rating" },
+            { "$sort": { "rating.numVotes": -1 } },
+            { "$skip": skip },
+            { "$limit": offset },
+            { "$project": {
+                "_id": 0,
+                "tconst": 1,
+                "primaryTitle": 1,
+                "startYear": 1,
+                "genres": 1,
+                "posterPath": 1,
+                "backdropPath": 1,
+                "release_date": 1,
+                "rating": "$rating.averageRating",
+                "numVotes": "$rating.numVotes",
+                "description": 1
+            }}
+        ]
+        movies = await collection.aggregate(pipeline).to_list(length=None)
+        return movies
 
     async def get_movies_by_nconst(self, nconst: str = "") -> List[Dict[str, Any]]:
         """

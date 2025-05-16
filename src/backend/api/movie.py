@@ -69,6 +69,30 @@ async def get_movie_by_ratings(movie_service: MovieService = Depends(get_movie_s
         logging.error(f"Error fetching movies by ratings: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     
+@router.get("/movies/trending", response_model=MovieWithRatingList)
+async def get_movie_by_trending(movie_service: MovieService = Depends(get_movie_service), page: int = 0, offset: int = 20):
+    """
+    Get movies sorted by ratings.
+    """
+    try:
+        movies = await movie_service.get_movies_by_trending(page=page, offset=offset)
+        return JSONResponse(content=movies, status_code=200)
+    except Exception as e:
+        logging.error(f"Error fetching movies by ratings: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/movies/numVote", response_model=MovieWithRatingList)
+async def get_movie_by_numVotes(movie_service: MovieService = Depends(get_movie_service), page: int = 0, offset: int = 20):
+    """
+    Get movies sorted by ratings.
+    """
+    try:
+        movies = await movie_service.get_movies_by_numVote(page=page, offset=offset)
+        return JSONResponse(content=movies, status_code=200)
+    except Exception as e:
+        logging.error(f"Error fetching movies by ratings: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
 @router.get("/movies/by-genre", response_model=MovieList)
 async def get_movie_by_genre(genre: str, movie_service: MovieService = Depends(get_movie_service), page: int = 0, offset: int = 20):
     """

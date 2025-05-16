@@ -3,7 +3,7 @@ import Card from './Card';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa6';
 import { useRef } from 'react';
 
-const HorizontalScrollCard = ({data = [], heading}) => {
+const HorizontalScrollCard = ({data = [], heading, trending=false}) => {
 
     const containerRef = useRef();
     const handleNext = () => {
@@ -25,7 +25,7 @@ const HorizontalScrollCard = ({data = [], heading}) => {
                   data={data}
                   key={data.tconst+heading+index}
                   index={index + 1}
-                  trending={true}
+                  trending={trending}
                 />
               );
             })}

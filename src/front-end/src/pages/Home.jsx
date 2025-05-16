@@ -6,27 +6,36 @@ import { FaAngleLeft } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import Card from "../components/Card";
 import HorizontalScrollCard from "../components/HorizontalScrollCard";
+import { useFetch } from "../hooks/useFetch";
 
 const Home = () => {
   const {
-    data: bannerData = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["movies"],
-    queryFn: () =>
-      fetch("http://localhost:8000/api/movies/ratings").then((res) => {
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return res.json();
-      }),
-  });
-
+    data: bannerData,
+    isLoading: isBannerLoading,
+    error: bannerError,
+  } = useFetch("/movies/trending", "movies-trending");
+  const {
+    data: nowplayingData,
+    isLoading: isLoadingNowPlaying,
+    error: errorNowPlaying,
+  } = useFetch("/movies", "movies-nowplaying");
+  const {
+    data: topRatedData,
+    isLoading: isLoadingTopRated,
+    error: errorTopRated, 
+  } = useFetch("/movies/ratings", "movies-ratings");
+  const {
+    data: moviePopularData,
+    isLoading: isMoviePopularLoading,
+    error: errorPopularTVShow,
+  } = useFetch("/movies/numVote", "movies-numVote");
   return (
     <div>
       <BannerHome bannerData={bannerData} />
-      <HorizontalScrollCard data={bannerData} heading={"Trending"}/>
+      <HorizontalScrollCard data={bannerData} heading={"Trending"} trending={true}/>
+      <HorizontalScrollCard data={nowplayingData} heading={"Now Playing"} />
+      <HorizontalScrollCard data={topRatedData} heading={"Top Rated Movies"} />
+      <HorizontalScrollCard data={moviePopularData} heading={"Most Popular Movies"} />
     </div>
   );
 };
