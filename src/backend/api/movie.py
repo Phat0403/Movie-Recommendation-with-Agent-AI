@@ -40,7 +40,7 @@ async def get_movies(movie_service: MovieService = Depends(get_movie_service), p
         movies = await movie_service.get_movies(page=page, offset=offset)
         return JSONResponse(content=movies, status_code=200)
     except Exception as e:
-        logging.error
+        logging.error(f"Error fetching movies: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.get("/movie/{movie_id}", response_model=MovieDetails)
