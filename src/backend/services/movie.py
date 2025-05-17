@@ -27,23 +27,11 @@ class MovieService:
             List[Dict[str, Any]]: A list of movies.
         """
         collection = self.mongo_client.get_collection(collection_name)
-        # Calculate the skip value based on the page number and offset
         skip = page * offset
         current_year = get_current_year()
-        # movies = await collection\
-        # .find({ "startYear": current_year},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
-        # .sort([("startYear",-1),("tconst",-1)])\
-        # .skip(skip).limit(offset).to_list()  # Adjust the length as needed
-        # return movies
+        
         pipeline = [
             { "$match": { "startYear": current_year } },
-            { "$lookup": {
-                "from": "ratings",
-                "localField": "tconst",
-                "foreignField": "tconst",
-                "as": "rating"
-            }},
-            { "$unwind": "$rating" },
             { "$sort": { "release_date": -1 } },
             { "$skip": skip },
             { "$limit": offset },
@@ -56,8 +44,8 @@ class MovieService:
                 "posterPath": 1,
                 "backdropPath": 1,
                 "release_date": 1,
-                "rating": "$rating.averageRating",
-                "numVotes": "$rating.numVotes",
+                "rating": "$averageRating",
+                "numVotes": 1,
                 "description": 1
             }}
         ]
@@ -169,25 +157,10 @@ class MovieService:
             List[Dict[str, Any]]: A list of movies.
         """
         collection = self.mongo_client.get_collection(collection_name)
-        # Calculate the skip value based on the page number and offset
         skip = page * offset
-        current_year = get_current_year()
 
-        # movies = await collection\
-        # .find({ "startYear": current_year},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
-        # .sort([("startYear",-1),("tconst",-1)])\
-        # .skip(skip).limit(offset).to_list()  # Adjust the length as needed
-        # return movies
         pipeline = [
-            { "$match": { "startYear": current_year } },
-            { "$lookup": {
-                "from": "ratings",
-                "localField": "tconst",
-                "foreignField": "tconst",
-                "as": "rating"
-            }},
-            { "$unwind": "$rating" },
-            { "$sort": { "rating.averageRating": -1 } },
+            { "$sort": { "averageRating": -1 } },
             { "$skip": skip },
             { "$limit": offset },
             { "$project": {
@@ -199,8 +172,8 @@ class MovieService:
                 "posterPath": 1,
                 "backdropPath": 1,
                 "release_date": 1,
-                "rating": "$rating.averageRating",
-                "numVotes": "$rating.numVotes",
+                "rating": "$averageRating",
+                "numVotes": 1,
                 "description": 1
             }}
         ]
@@ -218,24 +191,11 @@ class MovieService:
             List[Dict[str, Any]]: A list of movies.
         """
         collection = self.mongo_client.get_collection(collection_name)
-        # Calculate the skip value based on the page number and offset
         skip = page * offset
         current_year = get_current_year()
-        # movies = await collection\
-        # .find({ "startYear": current_year},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
-        # .sort([("startYear",-1),("tconst",-1)])\
-        # .skip(skip).limit(offset).to_list()  # Adjust the length as needed
-        # return movies
         pipeline = [
             { "$match": { "startYear": current_year } },
-            { "$lookup": {
-                "from": "ratings",
-                "localField": "tconst",
-                "foreignField": "tconst",
-                "as": "rating"
-            }},
-            { "$unwind": "$rating" },
-            { "$sort": { "rating.weightTrending": -1 } },
+            { "$sort": { "weightTrending": -1 } },
             { "$skip": skip },
             { "$limit": offset },
             { "$project": {
@@ -247,8 +207,8 @@ class MovieService:
                 "posterPath": 1,
                 "backdropPath": 1,
                 "release_date": 1,
-                "rating": "$rating.averageRating",
-                "numVotes": "$rating.numVotes",
+                "rating": "$averageRating",
+                "numVotes": 1,
                 "description": 1
             }}
         ]
@@ -267,24 +227,9 @@ class MovieService:
             List[Dict[str, Any]]: A list of movies.
         """
         collection = self.mongo_client.get_collection(collection_name)
-        # Calculate the skip value based on the page number and offset
         skip = page * offset
-        current_year = get_current_year()
-        # movies = await collection\
-        # .find({ "startYear": current_year},{"_id": 0, "tconst": 1, "primaryTitle": 1, "startYear": 1, "genres": 1, "posterPath": 1, "description": 1})\
-        # .sort([("startYear",-1),("tconst",-1)])\
-        # .skip(skip).limit(offset).to_list()  # Adjust the length as needed
-        # return movies
         pipeline = [
-            { "$match": { "startYear": current_year } },
-            { "$lookup": {
-                "from": "ratings",
-                "localField": "tconst",
-                "foreignField": "tconst",
-                "as": "rating"
-            }},
-            { "$unwind": "$rating" },
-            { "$sort": { "rating.numVotes": -1 } },
+            { "$sort": { "numVotes": -1 } },
             { "$skip": skip },
             { "$limit": offset },
             { "$project": {
@@ -296,8 +241,8 @@ class MovieService:
                 "posterPath": 1,
                 "backdropPath": 1,
                 "release_date": 1,
-                "rating": "$rating.averageRating",
-                "numVotes": "$rating.numVotes",
+                "rating": "$averageRating",
+                "numVotes": 1,
                 "description": 1
             }}
         ]
