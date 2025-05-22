@@ -1,8 +1,7 @@
 from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
 
-from core.movie import get_current_year
-from datetime import datetime
+from core.utils import get_current_year
 from typing import List, Dict, Any
 
 
@@ -324,7 +323,14 @@ class MovieService:
         results = await self.es_client.fuzzy_search(index="movie", field="directors", value=name)
         return [hit["_source"] for hit in results["hits"]["hits"]]
     
-    
+    async def get_cinestar_showwtimes(self):
+        """
+        Retrieve showtimes from Cinestar.
+
+        Returns:
+            List[Dict[str, Any]]: A list of showtimes.
+        """
+        
     
 async def main():
     # Example usage
