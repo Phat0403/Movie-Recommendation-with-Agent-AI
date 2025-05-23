@@ -1,0 +1,60 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo_data:/data/db
+
+  mongo-import:
+    build:
+      context: .
+      dockerfile: Dockerfile.mongo
+    container_name: mongo-import
+    depends_on:
+      - mongo
+    entrypoint: ["bash"]
+    command: ["/scripts/import.sh"]
+    restart: "no"
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: movie_recommendation
+    ports:
+      - "3306:3306"
+    # volumes:
+    # - mysql_data:/var/lib/mysql
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
+    container_name: es
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=changeme # Set a password for the 'elastic' superuser
+      - xpack.security.enabled=true # Enable security (authentication and authorization)
+      - xpack.security.authc.apiKey.enabled=true # Enable API Key authentication
+    ports:
+      - "9200:9200" # Expose Elasticsearch REST API port
+      - "9300:9300" # Expose transport communication port
+    volumes:
+      - es_data:/usr/share/elasticsearch/data # Persistent data storage
+    mem_limit: 2g
+
+  redis:
+    image: redis:7.0
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongo_data:
+  mysql_data:
+  es_data:

@@ -1,4 +1,4 @@
-FROM mongo:6.0
+FROM mongo:8.0.8
 
 WORKDIR /scripts
 
@@ -6,4 +6,4 @@ COPY data/* /scripts/
 
 RUN chmod +x /scripts/import.sh
 
-CMD ["/scripts/import.sh"]
+# ENTRYPOINT [ "/scripts/import.sh" ] 

@@ -1,0 +1,3 @@
+from core.auth import decode_token
+
+print(decode_token("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwbm1rMDgxMSJ9.F0tBSWxjkuS4SsN4VnyUNnofP_19sCe6TGWl71MdDwo"))

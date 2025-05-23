@@ -1,4 +1,12 @@
-venv
+.venv
 *.egg-info
 __pycache__
 *.pyc
+*.csv
+*.txt
+
+chroma_db/
+logs/
+.venv/
+*/_SUCCESS
+*.zip

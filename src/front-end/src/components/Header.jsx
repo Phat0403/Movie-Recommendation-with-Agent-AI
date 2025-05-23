@@ -1,30 +1,29 @@
 import React, { use } from "react";
 import logo from "../assets/logo.png";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import userIcon from "../assets/user.png";
 import { IoSearchOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { navigation } from "../contants/navigation";
+
 const Header = () => {
   const [searchInput, setSearchInput] = useState("");
-  const navigation = [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-  ];
+  
   const navigate = useNavigate();
-  useEffect(() => {
-    navigate(`/search?q=${searchInput}`);
-  }, [searchInput]);
+  // useEffect(() => {
+  //   navigate(`/search?q=${searchInput}`);
+  // }, [searchInput]);
   return (
-    <header className="fixed top-0 w-full h-16 bg-neutral-600 opacity-75 ">
+    <header className="fixed top-0 w-full h-16 bg-black opacity-55 z-40">
       <div className="container mx-auto px-3 flex items-center h-full">
-        <div>
+        <Link to={"/"}>
           <img src={logo} alt="logo" width={120} />
-        </div>
+        </Link>
         <nav className="hidden lg:flex items-center gap-1 ml-5">
           {navigation.map((nav, index) => {
             return (
-              <div>
+              <div key={index}>
                 <NavLink
                   key={nav.label}
                   to={nav.href}
@@ -45,7 +44,7 @@ const Header = () => {
             <input
               type="text"
               placeholder="Search here..."
-              className="bg-transparent px-4 py-1 border-none outline-none"
+              className="bg-transparent px-4 py-1 border-none outline-none hidden lg:block"
               onChange={(e) => setSearchInput(e.target.value)}
               value={searchInput}
             />
