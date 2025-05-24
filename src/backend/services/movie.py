@@ -5,7 +5,7 @@ from db.redis_client import RedisClient
 from core.utils import get_current_year, get_current_date
 from typing import List, Dict, Any
 
-from core.selenium_util import go_to_url, get_basic_info_from_link, get_driver, get_link_from_elements
+from core.selenium_util import go_to_url, get_driver, get_link_from_elements, get_movie_info_from_link
 from selenium.webdriver.common.by import By
 from concurrent.futures import ThreadPoolExecutor
 
@@ -340,20 +340,23 @@ class MovieService:
         Returns:
             List[Dict[str, Any]]: A list of showtimes.
         """
-        url = "https://cinestar.com.vn/movie/showing/"
+        url = "https://www.cgv.vn/default/movies/now-showing.html"  # Replace with the actual URL
         driver = get_driver()
+        
         try:
             go_to_url(driver, url)
-            elements = driver.find_elements(By.XPATH, "//a[@class='name']")
+            elements = driver.find_elements(By.XPATH, "//h2[@class='product-name']/a")
             links = get_link_from_elements(elements)
             # Use ThreadPoolExecutor to fetch data concurrently
-            with ThreadPoolExecutor(max_workers=3) as executor:
-                results = list(executor.map(get_basic_info_from_link, links))
-        except Exception as e:
-            results = []
-        finally:
             driver.quit()
-        return results
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                results = list(executor.map(get_movie_info_from_link, links))
+
+        except Exception as e:
+            print(f"Error fetching Cinestar showtimes: {e}")
+            return []
+        finally:
+            return results
 
     async def get_cinestar_showtimes(self) -> List[Dict[str, Any]]:
         """
