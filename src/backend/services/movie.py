@@ -306,7 +306,7 @@ class MovieService:
 
         return await collection.aggregate(pipeline).to_list()
     
-    async def search_movie_by_name(self, name: str = "") -> List[Dict[str, Any]]:
+    async def search_movie_by_name(self, name: str = "", size: int = 5) -> List[Dict[str, Any]]:
         """
         Retrieve movies by name.
 
@@ -317,10 +317,10 @@ class MovieService:
         Returns:
             List[Dict[str, Any]]: A list of movies.
         """
-        results = await self.es_client.fuzzy_search(index="movie", field="primaryTitle", value=name)
+        results = await self.es_client.fuzzy_search(index="movie", field="primaryTitle", value=name, size=size)
         return [hit["_source"] for hit in results["hits"]["hits"]]
     
-    async def search_movie_by_director(self, name: str = "") -> List[Dict[str, Any]]:
+    async def search_movie_by_director(self, name: str = "", size: int = 10) -> List[Dict[str, Any]]:
         """
         Retrieve movies by director.
 
@@ -330,7 +330,7 @@ class MovieService:
         Returns:
             List[Dict[str, Any]]: A list of movies.
         """
-        results = await self.es_client.fuzzy_search(index="movie", field="directors", value=name)
+        results = await self.es_client.fuzzy_search(index="movie", field="directors", value=name, size=size)
         return [hit["_source"] for hit in results["hits"]["hits"]]
     
     async def fetch_cinestar_showtimes(self) -> List[Dict[str, Any]]:
