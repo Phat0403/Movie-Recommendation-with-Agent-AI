@@ -20,3 +20,4 @@ motor
 bson
 mongoengine
 elasticsearch==8.6.0
+selenium

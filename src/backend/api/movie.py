@@ -129,7 +129,7 @@ async def search_movies(title: str, movie_service: MovieService = Depends(get_mo
         logging.error(f"Error searching movies by title: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/movies/search_by_director", response_model=MovieInESList)
+@router.get("/movies/search/by-director", response_model=MovieInESList)
 async def search_movies_by_director(director: str, movie_service: MovieService = Depends(get_movie_service)):
     """
     Search for movies by director.
