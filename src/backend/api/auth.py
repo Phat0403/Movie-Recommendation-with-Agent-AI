@@ -6,9 +6,12 @@ from sqlalchemy.orm import Session
 
 from db.crud_user import UserController
 from db.session import get_db
-from schemas.user import User, UserInDB
-from services.auth import AuthService
 from db.redis_client import RedisClient
+from db.clients import get_redis_client
+
+from schemas.user import User, UserInDB
+
+from services.auth import AuthService
 
 from utils.logger import get_logger
 
@@ -23,9 +26,6 @@ def get_user_controller(db: Session = Depends(get_db)):
 
 def get_auth_service(user_controller: UserController = Depends(get_user_controller)):
     return AuthService(user_controller)
-
-def get_redis_client():
-    return RedisClient()
 
 @router.get("/me", response_model=UserInDB)
 def get_current_user(auth_service: AuthService = Depends(get_auth_service), token: str = Depends(oauth2_scheme)):

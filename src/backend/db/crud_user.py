@@ -1,5 +1,5 @@
 from models.user import User
-from db.session import Base
+
 
 class UserController:
     def __init__(self, db):
