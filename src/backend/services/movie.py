@@ -83,6 +83,8 @@ class MovieService:
             "nconst": { "$addToSet": "$principals.nconst" },
             "posterPath": { "$first": "$posterPath" },
             "backdropPath": { "$first": "$backdropPath" },
+            "release_date": { "$first": "$release_date" },
+            "runtimeMinutes": { "$first": "$runtimeMinutes" },
             "trailerPath": { "$first": "$trailerPath" },
             "description": { "$first": "$description" }
             }
@@ -118,6 +120,7 @@ class MovieService:
                 "posterPath": 1,
                 "backdropPath": 1,
                 "trailerPath": 1,
+                "release_date": 1,
                 "description": 1
             }}
         ]
