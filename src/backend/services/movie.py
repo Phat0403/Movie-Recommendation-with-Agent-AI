@@ -1,12 +1,18 @@
 from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
+from db.redis_client import RedisClient
 
-from core.utils import get_current_year
+from core.utils import get_current_year, get_current_date
 from typing import List, Dict, Any
 
+from core.selenium_util import go_to_url, get_basic_info_from_link, get_driver, get_link_from_elements
+from selenium.webdriver.common.by import By
+from concurrent.futures import ThreadPoolExecutor
+
+import json
 
 class MovieService:
-    def __init__(self, mongo_client: MongoClient, es_client: ElasticSearchClient):
+    def __init__(self, mongo_client: MongoClient, es_client: ElasticSearchClient, redis_client: RedisClient):
         """
         Initialize the MovieService with a MongoDB client.
 
@@ -15,6 +21,7 @@ class MovieService:
         """
         self.mongo_client = mongo_client
         self.es_client = es_client
+        self.redis_client = redis_client
         self.mongo_client.connect()
         self.es_client.connect()
 
@@ -124,7 +131,7 @@ class MovieService:
             }}
         ]
         movie_collection = self.mongo_client.get_collection("movies")
-        return await movie_collection.aggregate(pipeline).to_list(length=30)
+        return await movie_collection.aggregate(pipeline).to_list()
     
     async def get_movies_by_genre(self, genre: str = "", collection_name: str = "movies", page: int = 0, offset: int = 10) -> List[Dict[str, Any]]:
         """
@@ -299,7 +306,7 @@ class MovieService:
 
         return await collection.aggregate(pipeline).to_list()
     
-    async def search_movie_by_name(self, name: str = "") -> List[Dict[str, Any]]:
+    async def search_movie_by_name(self, name: str = "", size: int = 5) -> List[Dict[str, Any]]:
         """
         Retrieve movies by name.
 
@@ -310,10 +317,10 @@ class MovieService:
         Returns:
             List[Dict[str, Any]]: A list of movies.
         """
-        results = await self.es_client.fuzzy_search(index="movie", field="primaryTitle", value=name)
+        results = await self.es_client.fuzzy_search(index="movie", field="primaryTitle", value=name, size=size)
         return [hit["_source"] for hit in results["hits"]["hits"]]
     
-    async def search_movie_by_director(self, name: str = "") -> List[Dict[str, Any]]:
+    async def search_movie_by_director(self, name: str = "", size: int = 10) -> List[Dict[str, Any]]:
         """
         Retrieve movies by director.
 
@@ -323,38 +330,74 @@ class MovieService:
         Returns:
             List[Dict[str, Any]]: A list of movies.
         """
-        results = await self.es_client.fuzzy_search(index="movie", field="directors", value=name)
+        results = await self.es_client.fuzzy_search(index="movie", field="directors", value=name, size=size)
         return [hit["_source"] for hit in results["hits"]["hits"]]
     
-    async def get_cinestar_showwtimes(self):
+    async def fetch_cinestar_showtimes(self) -> List[Dict[str, Any]]:
+        """
+        Fetch showtimes from the Cinestar API.
+
+        Returns:
+            List[Dict[str, Any]]: A list of showtimes.
+        """
+        url = "https://cinestar.com.vn/movie/showing/"
+        driver = get_driver()
+        try:
+            go_to_url(driver, url)
+            elements = driver.find_elements(By.XPATH, "//a[@class='name']")
+            links = get_link_from_elements(elements)
+            # Use ThreadPoolExecutor to fetch data concurrently
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                results = list(executor.map(get_basic_info_from_link, links))
+        except Exception as e:
+            results = []
+        finally:
+            driver.quit()
+        return results
+
+    async def get_cinestar_showtimes(self) -> List[Dict[str, Any]]:
         """
         Retrieve showtimes from Cinestar.
 
         Returns:
             List[Dict[str, Any]]: A list of showtimes.
         """
-        
+        today = get_current_date()    
+        showtimes = await self.redis_client.get(f"cinestar_showtimes_{today}")    
+        if showtimes is None:        
+            # Fetch showtimes from the API and store them in Redis
+            showtimes = await self.fetch_cinestar_showtimes()
+            showtimes_string = json.dumps(showtimes)
+            # Store the showtimes in Redis with an expiration time of 1 day
+            expired_time = 24 * 60 * 60  # 1 day in seconds
+            await self.redis_client.set(f"cinestar_showtimes_{today}", showtimes_string, expire=expired_time)
+        else:
+            # Deserialize the showtimes from Redis
+            showtimes = json.loads(showtimes)
+        return showtimes
     
 async def main():
     # Example usage
     mongo_client = MongoClient("mongodb://root:example@localhost:27017", "movie_db")
     es_client = ElasticSearchClient("http://localhost:9200", "elastic", "changeme")
-    mongo_client.connect()
-    es_client.connect()
-    movie_service = MovieService(mongo_client, es_client)
+    redis_client = RedisClient()
+    # movie_service = MovieService(mongo_client, es_client, redis_client)
     
-    print("=== Get Movies ===")
-    movies = await movie_service.get_movie_description_by_tconst("tt0070596")
-    # print(movies)
-    # print(type(movie[0]["genres"]))
-    for movie in movies:
-        print(movie)
-        print("===")
     
-    # Close the database connection
-    mongo_client.close()
-    await es_client.close()
-
+    # print("=== Get Movies ===")
+    # movies = await movie_service.get_movie_description_by_tconst("tt0070596")
+    # # print(movies)
+    # # print(type(movie[0]["genres"]))
+    # for movie in movies:
+    #     print(movie)
+    #     print("===")
+    
+    # # Close the database connection
+    # mongo_client.close()
+    # await es_client.close()
+    # result = await movie_service.get_cinestar_showtimes()
+    # print(result)
+    await redis_client.delete(f"cinestar_showtimes_{get_current_date()}")
 if __name__ == "__main__":
     import asyncio
     asyncio.run(main())

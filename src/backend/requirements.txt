@@ -17,7 +17,8 @@ secure-smtplib
 redis
 python-multipart
 motor
-bson
+pymongo
+python-dotenv
 mongoengine
 elasticsearch==8.6.0
 selenium

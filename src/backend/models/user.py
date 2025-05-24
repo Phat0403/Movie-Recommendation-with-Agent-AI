@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, UUID, VARCHAR
+from sqlalchemy import Column, Integer, Boolean, VARCHAR
 from db.session import Base
 class User(Base):
     __tablename__ = "users"

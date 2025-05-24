@@ -1,33 +1,23 @@
 from fastapi import Depends, APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
-from config.db_config import ES_URL, ES_USERNAME, ES_PASSWORD, MONGO_URI
 from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
+from db.redis_client import RedisClient
+from db.clients import get_mongo_client, get_es_client, get_redis_client
+
 from services.movie import MovieService
 from schemas.movie import MovieList, MovieWithRatingList, MovieInESList, MovieDetails
 
 import logging
 
-def get_mongo_client():
-    """
-    Create a MongoDB client.
-    """
-    mongo_client = MongoClient(MONGO_URI, database_name="movie_db")
-    return mongo_client
 
-def get_es_client():
-    """
-    Create an ElasticSearch client.
-    """
-    es_client = ElasticSearchClient(ES_URL, ES_USERNAME, ES_PASSWORD)
-    return es_client
 
-def get_movie_service(mongo_client: MongoClient = Depends(get_mongo_client), es_client: ElasticSearchClient = Depends(get_es_client)):
+def get_movie_service(mongo_client: MongoClient = Depends(get_mongo_client), es_client: ElasticSearchClient = Depends(get_es_client), redis_client: RedisClient = Depends(get_redis_client)):
     """
     Create a MovieService instance.
     """
-    return MovieService(mongo_client, es_client)
+    return MovieService(mongo_client=mongo_client, es_client=es_client, redis_client=redis_client)
 
 router = APIRouter()
 
@@ -139,4 +129,16 @@ async def search_movies_by_director(director: str, movie_service: MovieService =
         return JSONResponse(content=movies, status_code=200)
     except Exception as e:
         logging.error(f"Error searching movies by director: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/showtimes")
+async def get_showtimes(movie_service: MovieService = Depends(get_movie_service)):
+    """
+    Get showtimes for movies.
+    """
+    try:
+        showtimes = await movie_service.get_cinestar_showtimes()
+        return JSONResponse(content=showtimes, status_code=200)
+    except Exception as e:
+        logging.error(f"Error fetching showtimes: {e}")
         raise HTTPException(status_code=500, detail=str(e))

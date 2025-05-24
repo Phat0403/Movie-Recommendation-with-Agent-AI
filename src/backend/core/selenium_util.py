@@ -15,7 +15,7 @@ def get_driver():
 
 def go_to_url(driver, url):
     driver.get(url)
-    driver.implicitly_wait(10)  # Wait for elements to load
+    driver.implicitly_wait(5)  # Wait for elements to load
 
 def scroll_down(driver, pixels):
     driver.execute_script(f"window.scrollBy(0, {pixels});")
