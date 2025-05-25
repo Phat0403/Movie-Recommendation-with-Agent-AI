@@ -117,7 +117,7 @@ const DetailsPage = () => {
           <div>
             <p>
               <span className="text-white">Director</span> :{" "}
-              {castData?.crew[0]?.name}
+              {castData?.crew?.[0]?.name}
             </p>
 
             <Divider />
