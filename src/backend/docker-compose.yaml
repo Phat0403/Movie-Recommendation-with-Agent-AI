@@ -30,8 +30,8 @@ services:
       MYSQL_DATABASE: movie_recommendation
     ports:
       - "3306:3306"
-    # volumes:
-    # - mysql_data:/var/lib/mysql
+    volumes:
+    - mysql_data:/var/lib/mysql
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
     container_name: es
