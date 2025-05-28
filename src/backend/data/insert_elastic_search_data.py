@@ -98,7 +98,10 @@ if __name__ == "__main__":
             "directors": {
                 "type": "text",
                 "fields": { "raw": { "type": "keyword" } }
-            }
+            },
+
+            "backdropPath": { "type": "text", "index": False },
+            "averageRating": { "type": "float" }
         }
     }
     if es.indices.exists(index=INDEX):
