@@ -7,11 +7,11 @@ import './index.css';
 import App from './App.jsx';
 import Home from './pages/Home.jsx';
 import About from './pages/About.jsx';
-import Login from './pages/Login.jsx';
-import Register from './pages/Register.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 import ExplorePage from './pages/ExplorePage.jsx';
 import DetailsPage from './pages/DetailsPage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
 
 const queryClient = new QueryClient();
 
@@ -43,8 +43,8 @@ const router = createBrowserRouter([
     ],
 
   },
-  {path:'/login', element: <Login />},
-  {path:'/register', element: <Register />},
+  {path:'/login', element: <LoginPage />},
+  {path:'/register', element: <RegisterPage />},
 
 ]);
 
