@@ -1,6 +1,7 @@
 from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
 from db.redis_client import RedisClient
+from db.session import SessionLocal
 
 from config.db_config import ES_URL, ES_USERNAME, ES_PASSWORD, MONGO_URI
 
@@ -20,3 +21,16 @@ def get_es_client():
     """
     es_client = ElasticSearchClient(ES_URL, ES_USERNAME, ES_PASSWORD)
     return es_client
+
+def get_db():
+    """
+    Dependency to get the database session.
+
+    Yields:
+        Session: Database session.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
