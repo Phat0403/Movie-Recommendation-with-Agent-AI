@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 
 class MovieService:
-    def __init__(self, mongo_client: MongoClient, es_client: ElasticSearchClient, redis_client: RedisClient):
+    def __init__(self, mongo_client: MongoClient, es_client: ElasticSearchClient, redis_client: RedisClient, chroma_client: ChromaDBClient):
         """
         Initialize the MovieService with a MongoDB client.
 
@@ -23,6 +23,7 @@ class MovieService:
         self.mongo_client = mongo_client
         self.es_client = es_client
         self.redis_client = redis_client
+        self.chroma_client = chroma_client
         self.mongo_client.connect()
         self.es_client.connect()
 
@@ -452,7 +453,7 @@ class MovieService:
             showtimes = json.loads(showtimes)
         return showtimes
     
-    async def recommend(self,chroma_client: ChromaDBClient, movie_id: str, top_k: int = 10) -> List[Dict[str, Any]]:
+    async def recommend(self, movie_id: str, top_k: int = 10) -> List[Dict[str, Any]]:
         """
         Recommend movies based on a given movie ID.
 
@@ -472,7 +473,7 @@ class MovieService:
         if cached_recommendations:
             recommended_movies = json.loads(cached_recommendations)
         else:
-            results = chroma_client.query(movie["description"], n_results=top_k)
+            results = self.chroma_client.query(movie["description"], n_results=top_k)
             movie_ids = results["ids"][0]
             recommended_movies = await self.get_movies_by_list_tconst(movie_ids)
             await self.redis_client.set(f"movie_recommendations_{movie_id}", json.dumps(recommended_movies), expire=60 * 60)  # Cache for 1 hour

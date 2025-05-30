@@ -160,16 +160,12 @@ async def get_showtimes():
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.get("/movies/recommend/{movie_id}", response_model=MovieList)
-<<<<<<< HEAD
-async def recommend_movies(movie_id: str, movie_service: MovieService = Depends(get_movie_service), chroma_client: ChromaDBClient = Depends(get_chroma_client)):
-=======
 async def recommend_movies(movie_id: str):
->>>>>>> 164d952 (fix registration)
     """
     Recommend movies based on a given movie ID.
     """
     try:
-        recommendations = await movie_service.recommend(chroma_client=chroma_client,movie_id=movie_id)
+        recommendations = await movie_service.recommend(movie_id=movie_id)
         return JSONResponse(content=recommendations, status_code=200)
     except Exception as e:
         logging.error(f"Error recommending movies: {e}")
