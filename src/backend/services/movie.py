@@ -1,6 +1,7 @@
 from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
 from db.redis_client import RedisClient
+from db.chroma import ChromaDBClient
 
 from core.utils import get_current_year, get_current_date
 from typing import List, Dict, Any
@@ -12,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 
 class MovieService:
-    def __init__(self, mongo_client: MongoClient, es_client: ElasticSearchClient, redis_client: RedisClient):
+    def __init__(self, mongo_client: MongoClient, es_client: ElasticSearchClient, redis_client: RedisClient, chroma_client: ChromaDBClient):
         """
         Initialize the MovieService with a MongoDB client.
 
@@ -22,6 +23,7 @@ class MovieService:
         self.mongo_client = mongo_client
         self.es_client = es_client
         self.redis_client = redis_client
+        self.chroma_client = chroma_client
         self.mongo_client.connect()
         self.es_client.connect()
 
@@ -56,6 +58,36 @@ class MovieService:
             }}
         ]
         movies = await collection.aggregate(pipeline).to_list(length=None)
+        return movies
+    
+    async def get_movies_by_list_tconst(self, tconst_list: List[str], collection_name: str = "movies") -> List[Dict[str, Any]]:
+        """
+        Retrieve movies by a list of IDs.
+
+        Args:
+            tconst_list (List[str]): A list of movie IDs.
+            collection_name (str): The name of the collection.
+
+        Returns:
+            List[Dict[str, Any]]: A list of movies.
+        """
+        collection = self.mongo_client.get_collection(collection_name)
+        movies = await collection.find(
+            { "tconst": { "$in": tconst_list } },
+            {
+                "_id": 0,
+                "tconst": 1,
+                "primaryTitle": 1,
+                "startYear": 1,
+                "genres": 1,
+                "posterPath": 1,
+                "backdropPath": 1,
+                "release_date": 1,
+                "rating": "$averageRating",
+                "numVotes": 1,
+                "description": 1
+            }
+        ).to_list(length=None)
         return movies
     
     async def get_movie_description_by_tconst(self, tconst: str = "") -> Dict[str, Any]:
@@ -379,13 +411,41 @@ class MovieService:
             showtimes = json.loads(showtimes)
         return showtimes
     
+    async def recommend(self, movie_id: str, top_k: int = 10) -> List[Dict[str, Any]]:
+        """
+        Recommend movies based on a given movie ID.
+
+        Args:
+            movie_id (str): The ID of the movie to base recommendations on.
+            top_k (int): The number of recommendations to return.
+
+        Returns:
+            List[Dict[str, Any]]: A list of recommended movies.
+        """
+        movie = await self.get_movie_description_by_tconst(movie_id)
+        movie = movie[0] if movie else None
+        if not movie:
+            raise ValueError(f"Movie with ID {movie_id} not found.")
+        # Check if the movie is already cached in Redis
+        cached_recommendations = await self.redis_client.get(f"movie_recommendations_{movie_id}")
+        if cached_recommendations:
+            recommended_movies = json.loads(cached_recommendations)
+        else:
+            results = self.chroma_client.query(movie["description"], n_results=top_k)
+            movie_ids = results["ids"][0]
+            recommended_movies = await self.get_movies_by_list_tconst(movie_ids)
+            await self.redis_client.set(f"movie_recommendations_{movie_id}", json.dumps(recommended_movies), expire=60 * 60)  # Cache for 1 hour
+        return recommended_movies
+    
 async def main():
     # Example usage
     mongo_client = MongoClient("mongodb://root:example@localhost:27017", "movie_db")
     es_client = ElasticSearchClient("http://localhost:9200", "elastic", "changeme")
     redis_client = RedisClient()
-    # movie_service = MovieService(mongo_client, es_client, redis_client)
-    
+    chroma_client = ChromaDBClient()
+    movie_service = MovieService(mongo_client, es_client, redis_client, chroma_client)
+    result = await movie_service.recommend("tt10872600", 10)
+    print(result)
     
     # print("=== Get Movies ===")
     # movies = await movie_service.get_movie_description_by_tconst("tt0070596")
@@ -400,7 +460,8 @@ async def main():
     # await es_client.close()
     # result = await movie_service.get_cinestar_showtimes()
     # print(result)
-    await redis_client.delete(f"cinestar_showtimes_{get_current_date()}")
+    # await redis_client.delete(f"cinestar_showtimes_{get_current_date()}")
+
 if __name__ == "__main__":
     import asyncio
     asyncio.run(main())
