@@ -37,19 +37,8 @@ const SearchPage = () => {
 
   return (
     <div className='py-16'>
-
-        <div className='lg:hidden my-2 mx-1 sticky top-[70px] z-30'>
-            <input 
-              type='text'
-              placeholder='Search here...'
-              onChange={(e)=> navigate(`/search?q=${e.target.value}`)}
-              value={query?.split("%20")?.join(" ")}
-              className='px-4 py-1 text-lg w-full bg-white rounded-full text-neutral-900 '
-            />
-        </div>
         <div className='container mx-auto'>
           <h3 className='capitalize text-lg lg:text-xl font-semibold my-3'>Search Results</h3>
-
           <div className='grid grid-cols-[repeat(auto-fit,260px)] gap-6 justify-center lg:justify-start'>
               {
                 data.map((searchData,index)=>{

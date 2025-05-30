@@ -21,6 +21,21 @@ def get_movie_service(mongo_client: MongoClient = Depends(get_mongo_client), es_
 
 router = APIRouter()
 
+@router.get("/movies/explore", response_model=MovieList)
+async def get_all_movies(movie_service: MovieService = Depends(get_movie_service),year: int = 0, genre: str = "", sort: int = 0, page: int = 0, offset: int = 20):
+    """
+    Get a list of movies with pagination.
+    """
+    if genre == "all":
+        genre = ""
+    try:
+        movies = await movie_service.get_all_movies(year=year, genre=genre, sort=sort, page=page, offset=offset)
+        return JSONResponse(content=movies, status_code=200)
+    except Exception as e:
+        logging.error(f"Error fetching movies: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
 @router.get("/movies", response_model=MovieList)
 async def get_movies(movie_service: MovieService = Depends(get_movie_service), page: int = 0, offset: int = 20):
     """

@@ -17,45 +17,59 @@ const FilmReelIcon = (props) => (
 // Removed RegisterPageProps interface
 
 const RegisterPage = () => {
-  const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState(''); // Changed from email
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
 
   const navigateTo = useNavigate(); // Use useNavigate for navigation
   const handleRegister = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setPasswordError(null);
+  e.preventDefault();
+  setError(null);
+  setPasswordError(null);
 
-    if (password !== confirmPassword) {
-      setPasswordError("Passwords do not match.");
-      return;
+  if (password !== confirmPassword) {
+    setPasswordError("Passwords do not match.");
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const response = await fetch("http://localhost:8000/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+        email: email,
+        is_admin: false
+      })
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    if (!response.ok) {
+      throw new Error(data.error || "Registration failed.");
     }
 
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    // Dummy registration logic
-    if (username === 'takenusername') { // Changed from email === 'taken@example.com'
-      setError('This username is already taken.'); // Changed error message
-      console.error('Registration failed: Username taken');
-    } else {
-      console.log('Registration successful:', { fullName, username });
-      // Potentially navigate to login or a success page
-      alert('Registration successful! Please login.');
-      navigateTo('login');
-    }
+    alert("Registration successful! Please login.");
+    navigateTo("/login");
+  } catch (err) {
+    console.error("Registration error:", err);
+    setError(err.message);
+  } finally {
     setIsLoading(false);
-  };
+  }
+};
 
-  const handleGoogleRegister = () => {
-    console.log('Register with Google clicked');
-    // Actual Google registration logic would be implemented here
-  };
+  
 
   const handleLoginClick = (e) => {
     e.preventDefault();
@@ -78,18 +92,7 @@ const RegisterPage = () => {
         )}
 
         <form onSubmit={handleRegister} className="space-y-6">
-          <Input
-            id="fullName"
-            type="text"
-            label="Full Name"
-            placeholder="John Doe"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            icon={<UserIcon className="h-5 w-5" />} // UserIcon for full name
-            required
-            disabled={isLoading}
-            aria-required="true"
-          />
+          
           <Input
             id="username-register" // Changed from email-register
             type="text" // Changed from email
@@ -138,6 +141,18 @@ const RegisterPage = () => {
             aria-required="true"
             aria-invalid={!!passwordError}
             aria-describedby={passwordError ? "password-match-error" : undefined}
+          />
+          <Input
+            id="email-register"
+            type="email"
+            label="Email Address"
+            placeholder="example@one.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            icon={<UserIcon className="h-5 w-5" />} // UserIcon for full name
+            required
+            disabled={isLoading}
+            aria-required="true"
           />
           {passwordError && <p id="password-match-error" className="sr-only">{passwordError}</p>}
 

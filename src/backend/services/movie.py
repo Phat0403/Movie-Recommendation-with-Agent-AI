@@ -57,6 +57,48 @@ class MovieService:
         ]
         movies = await collection.aggregate(pipeline).to_list(length=None)
         return movies
+    async def get_all_movies(self, collection_name: str = "movies",year: int =0, genre: str = "",sort: int =0, page: int = 0, offset: int = 20) -> List[Dict[str, Any]]:
+        """
+        Retrieve all movies from the database.
+
+        Returns:
+            List[Dict[str, Any]]: A list of movies.
+        """
+        collection = self.mongo_client.get_collection(collection_name)
+        # Get total count of documents in the collection
+        skip = page * offset
+        # Build the filter dynamically
+        filter_query = {}
+        if year != 0:
+            filter_query["startYear"] = int(year)
+        if genre:
+            filter_query["genres"] =  { "$regex": genre, "$options": "i" }
+        pipeline = [
+        { "$match": filter_query }
+    ]
+        if sort != 0:
+            print("have_sort", sort)
+            pipeline.append({ "$sort": { "averageRating": sort } }) 
+        pipeline.extend([
+            { "$match": filter_query },
+            { "$skip": skip },
+            { "$limit": offset },
+            { "$project": {
+                "_id": 0,
+                "tconst": 1,
+                "primaryTitle": 1,
+                "startYear": 1,
+                "genres": 1,
+                "posterPath": 1,
+                "backdropPath": 1,
+                "release_date": 1,
+                "rating": "$averageRating",
+                "numVotes": 1,
+                "description": 1
+            }}
+        ])
+        movies = await collection.aggregate(pipeline).to_list(length=None)
+        return  movies
     
     async def get_movie_description_by_tconst(self, tconst: str = "") -> Dict[str, Any]:
         """
