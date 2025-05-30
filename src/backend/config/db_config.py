@@ -18,3 +18,5 @@ ES_PORT = "9200"
 ES_USERNAME = "elastic"
 ES_PASSWORD = "changeme"
 ES_URL = f"{ES_SCHEMA}://{ES_HOST}:{ES_PORT}"
+
+CHROMA_DB_PATH = "chroma/" 

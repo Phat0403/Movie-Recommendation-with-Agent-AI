@@ -2,6 +2,7 @@ from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
 from db.redis_client import RedisClient
 from db.session import SessionLocal
+from db.chroma import ChromaDBClient
 
 from config.db_config import ES_URL, ES_USERNAME, ES_PASSWORD, MONGO_URI
 
@@ -34,3 +35,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def get_chroma_client():
+    """
+    Create a ChromaDB client.
+    """
+    chroma_client = ChromaDBClient()
+    return chroma_client

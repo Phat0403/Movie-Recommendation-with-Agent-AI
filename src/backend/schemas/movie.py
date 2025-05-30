@@ -6,6 +6,10 @@ class Movie(BaseModel):
     startYear: int = Field(..., description="The year the movie was released")
     genres: str = Field(..., description="The genres of the movie")
     posterPath: str = Field(..., description="The path to the movie poster")
+    backdropPath: str = Field(..., description="The path to the movie backdrop")
+    release_date: str = Field(..., description="The release date of the movie")
+    rating: float = Field(..., description="The rating of the movie")
+    numVotes: int = Field(..., description="The number of votes for the movie")
     description: str = Field(..., description="A brief description of the movie")
 
 class MovieWithRating(Movie):
