@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 import logging
 
@@ -7,16 +7,14 @@ from services.comment import CommentService
 from core.api import get_user_from_request
 from schemas.comment import CommentList, Comment, CommentCreate, CommentUpdate
 
-def get_comment_service(db=Depends(get_db)):
-    """
-    Create a CommentService instance.
-    """
-    return CommentService(db=db)
+# Initialize the CommentService instance using the correct db dependency
+db = next(get_db())  # Fetch the database connection
+comment_service = CommentService(db=db)
 
 router = APIRouter()
 
 @router.get("/comment/{comment_id}", response_model=Comment)
-async def get_comment(comment_id: int, comment_service: CommentService = Depends(get_comment_service)):
+async def get_comment(comment_id: int):
     """
     Get a comment by its ID.
     """
@@ -31,7 +29,7 @@ async def get_comment(comment_id: int, comment_service: CommentService = Depends
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/comments/movie/{movie_id}", response_model=CommentList)
-async def get_comments_by_movie_id(movie_id: str, comment_service: CommentService = Depends(get_comment_service)):
+async def get_comments_by_movie_id(movie_id: str):
     """
     Get all comments for a specific movie.
     """
@@ -45,7 +43,7 @@ async def get_comments_by_movie_id(movie_id: str, comment_service: CommentServic
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.get("/comments/user/{username}", response_model=CommentList)
-async def get_comment_by_username(username: str, comment_service: CommentService = Depends(get_comment_service), request: Request = None):
+async def get_comment_by_username(username: str, request: Request = None):
     """
     Get all comments made by a specific user.
     """
@@ -67,7 +65,7 @@ async def get_comment_by_username(username: str, comment_service: CommentService
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/comment")
-async def create_comment(payload: CommentCreate, comment_service: CommentService = Depends(get_comment_service), request: Request = None):
+async def create_comment(payload: CommentCreate, request: Request = None):
     """
     Create a new comment for a movie.
     """
@@ -83,24 +81,20 @@ async def create_comment(payload: CommentCreate, comment_service: CommentService
     response = await get_user_from_request(request)
     if response.get("status_code") != 200:
         raise HTTPException(status_code=response.get("status_code"), detail=response.get("message", "Failed to fetch user information"))
-    # logging.warning(f"Response from get_user_from_request: {response}")
     user = response.get("user")
     username = user.get("username")
-    # logging.warning(f"Creating comment for movie {movie_id} by user {username} with text: {comment_text}")
     if not username:
         raise HTTPException(status_code=401, detail="User is not authenticated")
 
     try:
         response = comment_service.create(movie_id, username, comment_text)
-        # logging.warning(f"Creating comment for movie {movie_id} by user {username} with response: {response}")
-        # logging.warning(f"Response type: {type(response)}")
         logging.warning(f"Response from create_comment: {response}")
         return JSONResponse(content={"comment": response.as_dict(), "message": "Comment created successfully"}, status_code=201)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/comment/{comment_id}", response_model=dict)
-async def delete_comment(comment_id: int, comment_service: CommentService = Depends(get_comment_service), request: Request = None):
+async def delete_comment(comment_id: int, request: Request = None):
     """
     Delete a comment by its ID.
     """
@@ -129,7 +123,7 @@ async def delete_comment(comment_id: int, comment_service: CommentService = Depe
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.put("/comment")
-async def update_comment(payload: CommentUpdate, comment_service: CommentService = Depends(get_comment_service), request: Request = None):
+async def update_comment(payload: CommentUpdate, request: Request = None):
     """
     Update a comment by its ID.
     """

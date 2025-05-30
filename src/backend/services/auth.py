@@ -21,37 +21,43 @@ class AuthService:
             return {"error": "User not found", "status": 404}
         return db_user
     
-    async def send_register_verification_code(self, redis_client: RedisClient, email: str = None, username: str = None):
+    async def send_register_otp_email(self, username: str, password: str, email: str = None, redis_client: RedisClient = None):
         """
-        Send a registration verification code to the user's email.
+        Initialize the registration process for a new user.
 
         Args:
-            redis_client: Redis client instance.
-            email (str): The email of the user.
             username (str): The username of the user.
+            email (str): The email of the user.
 
         Returns:
-            dict: Response message and status code.
+            dict: A dictionary containing the status and message.
         """
-        if email is None or email == "":
-            return {"error": "Email is required", "status": 400}
+        if self.user_controller.check_user_exists(username):
+            return {"error": "User already exists", "status": 400}
         if username is None or username == "":
             return {"error": "Username is required", "status": 400}
-        
+        if email is None or email == "":
+            return {"error": "Email is required", "status": 400}
+        if password is None or password == "":
+            return {"error": "Password is required", "status": 400}
+        if not password_validation(password):
+            return {"error": "Password must be at least 8 characters long and contain letters and numbers", "status": 400}
         if not email_validation(email):
             return {"error": "Invalid email format", "status": 400}
+        otp_code = send_email_verification(email)["code"]
+        if otp_code is None:
+            return {"error": "Failed to send verification email", "status": 500}
+        if redis_client is None:
+            return {"error": "Redis client is required", "status": 400}
+        # Store the OTP code in Redis with a 10-minute expiration
+        logging.warning(f"Storing registration code for {username} in Redis")
+        await redis_client.set(f"registration_code:{username}", otp_code, expire=600)
+        await redis_client.set(f"registration_code:{username}_password", password, expire=600)
+        await redis_client.set(f"registration_code:{username}_email", email, expire=600)
 
-        response = send_email_verification(email)
-        
-        if response["status"] != 200:
-            return {"error": "Failed to send email", "status": response["status"]}
-        
-        code = response["code"]
-        redis_key = f"register_code:{username}"
-        await redis_client.set(redis_key, code, expire=60 * 10)
-        return {"message": "Verification code sent successfully", "status": 200}
+        return {"message": "Registration initialized successfully", "status": 200}
     
-    async def register(self, otp: str, username: str, password: str, email: str = None, is_admin: bool = False):
+    async def register(self, otp: str, username: str = None, redis_client: RedisClient = None):
         """
         Register a new user in the database.
 
@@ -63,24 +69,23 @@ class AuthService:
         Returns:
             User: The created user object.
         """
-        if self.user_controller.check_user_exists(username):
-            return {"error": "User already exists", "status": 400}
-        if username is None or username == "":
-            return {"error": "Username is required", "status": 400}
-        if password is None or password == "":
-            return {"error": "Password is required", "status": 400}
-        if email is None or email == "":
-            return {"error": "Email is required", "status": 400}
-        
-        if not email_validation(email):
-            return {"error": "Invalid email format", "status": 400}
-        
-        if not password_validation(password):
-            return {"error": "Password must be at least 8 characters long and contain letters and numbers", "status": 400}
+        if redis_client is None:
+            return {"error": "Redis client is required", "status": 400}
+        redis_code = await redis_client.get(f"registration_code:{username}")
+        if redis_code is None:
+            return {"error": "Invalid or expired registration code", "status": 400}
+        if redis_code != otp:
+            return {"error": "Invalid registration code", "status": 400}
+        # Retrieve the password and email from Redis
+        password = await redis_client.get(f"registration_code:{username}_password")
+        email = await redis_client.get(f"registration_code:{username}_email")
+        await redis_client.delete(f"registration_code:{username}")
+        await redis_client.delete(f"registration_code:{username}_password")
+        await redis_client.delete(f"registration_code:{username}_email")
 
         
         hashed_password = get_password_hash(password)
-        new_user = User(username=username, password=hashed_password, email=email, is_admin=is_admin)
+        new_user = User(username=username, password=hashed_password, email=email, is_admin=False)
         try:
             self.user_controller.create(new_user)
         except Exception as e:
@@ -88,7 +93,34 @@ class AuthService:
             return {"error": "Failed to register user", "status": 500}
 
         return {"message": "User registered successfully", "status": 201}
+    async def resend_registration_otp(self, username: str, redis_client: RedisClient):
+        """
+        Resend the registration OTP to the user's email.
 
+        Args:
+            username (str): The username of the user.
+            redis_client (RedisClient): The Redis client instance.
+
+        Returns:
+            dict: A dictionary containing the status and message.
+        """
+        if redis_client is None:
+            return {"error": "Redis client is required", "status": 400}
+        
+        email = await redis_client.get(f"registration_code:{username}_email")
+        if email is None:
+            return {"error": "User have not initiated registration", "status": 400}
+        
+        otp_code = send_email_verification(email)["code"]
+        if otp_code is None:
+            return {"error": "Failed to send verification email", "status": 500}
+        
+        await redis_client.set(f"registration_code:{username}", otp_code, expire=600)
+        await redis_client.set(f"registration_code:{username}_email", email, expire=600)
+        password = await redis_client.get(f"registration_code:{username}_password")
+        await redis_client.set(f"registration_code:{username}_password", password, expire=600)
+
+        return {"message": "Registration OTP resent successfully", "status": 200}
     def login(self, username: str, password: str):
         """
         Login a user and return an access token.
