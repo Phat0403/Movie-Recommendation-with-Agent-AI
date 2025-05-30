@@ -21,7 +21,37 @@ class AuthService:
             return {"error": "User not found", "status": 404}
         return db_user
     
-    def register(self, username: str, password: str, email: str = None, is_admin: bool = False):
+    async def send_register_verification_code(self, redis_client: RedisClient, email: str = None, username: str = None):
+        """
+        Send a registration verification code to the user's email.
+
+        Args:
+            redis_client: Redis client instance.
+            email (str): The email of the user.
+            username (str): The username of the user.
+
+        Returns:
+            dict: Response message and status code.
+        """
+        if email is None or email == "":
+            return {"error": "Email is required", "status": 400}
+        if username is None or username == "":
+            return {"error": "Username is required", "status": 400}
+        
+        if not email_validation(email):
+            return {"error": "Invalid email format", "status": 400}
+
+        response = send_email_verification(email)
+        
+        if response["status"] != 200:
+            return {"error": "Failed to send email", "status": response["status"]}
+        
+        code = response["code"]
+        redis_key = f"register_code:{username}"
+        await redis_client.set(redis_key, code, expire=60 * 10)
+        return {"message": "Verification code sent successfully", "status": 200}
+    
+    async def register(self, otp: str, username: str, password: str, email: str = None, is_admin: bool = False):
         """
         Register a new user in the database.
 
@@ -41,11 +71,14 @@ class AuthService:
             return {"error": "Password is required", "status": 400}
         if email is None or email == "":
             return {"error": "Email is required", "status": 400}
+        
         if not email_validation(email):
             return {"error": "Invalid email format", "status": 400}
+        
         if not password_validation(password):
             return {"error": "Password must be at least 8 characters long and contain letters and numbers", "status": 400}
 
+        
         hashed_password = get_password_hash(password)
         new_user = User(username=username, password=hashed_password, email=email, is_admin=is_admin)
         try:

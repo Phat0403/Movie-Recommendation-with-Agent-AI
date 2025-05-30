@@ -8,7 +8,7 @@ class ChromaDBClient:
     def __init__(self, config_path: str = "config/movie_embedding_config.yaml"):
         self.embedder_config = read_yaml(config_path)
         self.client = chromadb.PersistentClient(
-            path=CHROMA_DB_PATH
+            path="./chroma"
         )
         self.model = self.embedder_config.get("model_name", "intfloat/multilingual-e5-base")
         self.embedding_function = CustomEmbeddingFunction(self.model)
@@ -38,3 +38,4 @@ if __name__ == "__main__":
     print("IDs:", results["ids"])
     print("URIs:", results["uris"])
     print("Data: ", results["data"])
+    print("Collections available:", chroma_client.client.list_collections())

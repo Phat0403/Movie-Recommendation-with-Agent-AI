@@ -12,11 +12,11 @@ from schemas.movie import MovieList, MovieInESList, MovieDetails
 
 import logging
 
-def get_movie_service(mongo_client: MongoClient = Depends(get_mongo_client), es_client: ElasticSearchClient = Depends(get_es_client), redis_client: RedisClient = Depends(get_redis_client), chroma_client: ChromaDBClient = Depends(get_chroma_client)):
+def get_movie_service(mongo_client: MongoClient = Depends(get_mongo_client), es_client: ElasticSearchClient = Depends(get_es_client), redis_client: RedisClient = Depends(get_redis_client)):
     """
     Create a MovieService instance.
     """
-    return MovieService(mongo_client=mongo_client, es_client=es_client, redis_client=redis_client, chroma_client=chroma_client)
+    return MovieService(mongo_client=mongo_client, es_client=es_client, redis_client=redis_client)
 
 router = APIRouter()
 
@@ -158,12 +158,12 @@ async def get_showtimes(movie_service: MovieService = Depends(get_movie_service)
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.get("/movies/recommend/{movie_id}", response_model=MovieList)
-async def recommend_movies(movie_id: str, movie_service: MovieService = Depends(get_movie_service)):
+async def recommend_movies(movie_id: str, movie_service: MovieService = Depends(get_movie_service), chroma_client: ChromaDBClient = Depends(get_chroma_client)):
     """
     Recommend movies based on a given movie ID.
     """
     try:
-        recommendations = await movie_service.recommend(movie_id=movie_id)
+        recommendations = await movie_service.recommend(chroma_client=chroma_client,movie_id=movie_id)
         return JSONResponse(content=recommendations, status_code=200)
     except Exception as e:
         logging.error(f"Error recommending movies: {e}")

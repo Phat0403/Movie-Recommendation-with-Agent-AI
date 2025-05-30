@@ -19,7 +19,7 @@ def average_pool(last_hidden_states: Tensor, attention_mask: Tensor) -> Tensor:
 class Embedder:
     def __init__(self, model_name: str):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+        print(f"Using device: {self.device}")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name).to(self.device)
 
