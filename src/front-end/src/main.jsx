@@ -12,6 +12,7 @@ import ExplorePage from './pages/ExplorePage.jsx';
 import DetailsPage from './pages/DetailsPage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
   },
   {path:'/login', element: <LoginPage />},
   {path:'/register', element: <RegisterPage />},
+  {path:'/reset-password', element: <ResetPasswordPage />}, // Assuming you have a ResetPasswordPage component
 
 ]);
 

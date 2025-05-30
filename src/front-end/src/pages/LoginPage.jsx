@@ -1,17 +1,17 @@
-
 import React, { useState } from 'react';
 import MailIcon from '../components/icons/MailIcon';
-import GoogleIcon from '../components/icons/GoogleIcon';
+import GoogleIcon from '../components/icons/GoogleIcon'; // Assuming GoogleIcon might be used later
 import LockIcon from '../components/icons/LockIcon';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import { useNavigate } from 'react-router-dom';
+
+// FilmReelIcon component as provided
 const FilmReelIcon = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" {...props}>
     <path d="M18 3H6C4.346 3 3 4.346 3 6V18C3 19.654 4.346 21 6 21H18C19.654 21 21 19.654 21 18V6C21 4.346 19.654 3 18 3ZM7 17H5V15H7V17ZM7 13H5V11H7V13ZM7 9H5V7H7V9ZM15 17H9V7H15V17ZM19 17H17V15H19V17ZM19 13H17V11H19V13ZM19 9H17V7H19V9Z"/>
   </svg>
 );
-
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -19,32 +19,57 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const navigate = useNavigate(); // Use useNavigate for navigation
+  const navigate = useNavigate();
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    if (username === 'test@example.com' && password === 'password') {
-      console.log('Login successful:', { username });
-      // Navigate to dashboard or home page
-    } else {
-      setError('Invalid email or password.');
-      console.error('Login failed');
+
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', username); // Corresponds to form_data.username in FastAPI
+      formData.append('password', password); // Corresponds to form_data.password in FastAPI
+
+      // Replace '/api/v1' with your actual API prefix if you have one.
+      // If your frontend and backend are on different domains during development,
+      // you might need to configure CORS on the backend or use a proxy.
+      const response = await fetch('http://localhost:8000/api/auth/login', { // Assuming your API endpoint is at /login
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
+      });
+
+      const responseData = await response.json(); // Backend returns JSONResponse
+
+      if (response.ok) {
+        // Login successful
+        //Lưu token vào localStorage hoặc sessionStorage nếu cần
+        localStorage.setItem('token', responseData.access_token); // Assuming the token is returned in access_token
+        console.log('Login successful:', responseData);
+        navigate('/'); // Adjust as needed
+      } else {
+        // Login failed, backend should return an error message
+        // FastAPI's HTTPException often provides error details in responseData.detail
+        setError(responseData.detail || 'Invalid username or password.');
+        console.error('Login failed:', responseData);
+      }
+    } catch (err) {
+      // Network error or other issues with the fetch request
+      setError('Login failed. An unexpected error occurred. Please try again.');
+      console.error('Login request error:', err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
-  const handleGoogleLogin = () => {
-    console.log('Login with Google clicked');
-    // Actual Google login logic would be implemented here
-    // For example, redirecting to Google's OAuth endpoint
-  };
+
 
   const handleRegisterClick = (e) => {
     e.preventDefault();
-    navigate('/register'); // Navigate to the registration page
+    navigate('/register');
   };
 
   return (
@@ -64,15 +89,15 @@ const LoginPage = () => {
         <form onSubmit={handleLogin} className="space-y-4">
           <Input
             id="username"
-            type="text"
-            label="Username"
-            placeholder="Enter your username"
+            type="text" // Changed from email to text to be more generic for "username"
+            label="Username or Email"
+            placeholder="Enter your username or email"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             icon={<MailIcon className="h-5 w-5" />}
             required
             disabled={isLoading}
-            error={undefined} 
+            error={undefined}
             className=""
           />
           <Input
@@ -89,15 +114,15 @@ const LoginPage = () => {
             className=""
           />
           <div className="flex items-center justify-end">
-            <a href="#" onClick={(e) => {e.preventDefault(); console.log("Forgot password clicked")}} className="text-sm text-sky-500 hover:text-sky-400 hover:underline">
+            <a href="#" onClick={(e) => {e.preventDefault(); navigate('/reset-password');}} className="text-sm text-sky-500 hover:text-sky-400 hover:underline">
               Forgot password?
             </a>
           </div>
-          <Button 
-            type="submit" 
-            variant="primary" 
-            fullWidth 
-            isLoading={isLoading} 
+          <Button
+            type="submit"
+            variant="primary"
+            fullWidth
+            isLoading={isLoading}
             disabled={isLoading}
             icon={undefined}
             className=""
@@ -105,34 +130,16 @@ const LoginPage = () => {
             {isLoading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
-
-        <div className="relative flex items-center py-2">
-          <div className="flex-grow border-t border-slate-600"></div>
-          <span className="flex-shrink mx-4 text-slate-400 text-xs uppercase">Or continue with</span>
-          <div className="flex-grow border-t border-slate-600"></div>
-        </div>
-
-        <Button
-          type="button"
-          variant="google"
-          fullWidth
-          onClick={handleGoogleLogin}
-          icon={<GoogleIcon className="h-5 w-5" />}
-          disabled={isLoading}
-          className=""
-        >
-          Login with Google
-        </Button>
-
         <p className="text-sm text-center text-slate-400">
           Don't have an account?{' '}
           <a href="#register" onClick={handleRegisterClick} className="font-medium text-sky-500 hover:text-sky-400 hover:underline">
             Register here
           </a>
         </p>
+        
       </div>
       <footer className="absolute bottom-4 text-center text-xs text-slate-500 w-full">
-        &copy; {new Date().getFullYear()} CineSuggest. All rights reserved.
+        © {new Date().getFullYear()} CineSuggest. All rights reserved.
       </footer>
     </div>
   );
