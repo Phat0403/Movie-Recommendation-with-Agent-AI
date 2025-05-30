@@ -51,11 +51,8 @@ class MovieEmbedder:
     def __init__(self):
         self.data_path = "/kaggle/input/movie-description/movie_description.txt"
         self.model_name = "intfloat/multilingual-e5-base"
-        self.chroma_db_path = "/kaggle/working/chromadb"
+        self.chroma_db_path = "./chroma"
         self.collection_name = "movie"
-
-        # Xoá db cũ (nếu có)
-        os.system(f"rm -rf {self.chroma_db_path}")
 
     def load_data(self):
         with open(self.data_path, 'r', encoding='utf-8') as f:
@@ -63,7 +60,7 @@ class MovieEmbedder:
 
     def get_chroma_collection_client(self):
         chroma_client = chromadb.PersistentClient(path=self.chroma_db_path)
-        return chroma_client.get_or_create_collection(
+        return chroma_client, chroma_client.get_or_create_collection(
             name=self.collection_name,
             embedding_function=CustomEmbeddingFunction(self.model_name)
         )
@@ -83,3 +80,19 @@ class MovieEmbedder:
                 print(batch)
                 print(f"Error on batch {i//32}: {e}")
                 return
+            
+if __name__ == "__main__":
+    embedder = Embedder("intfloat/multilingual-e5-base")
+    query = "Test movie description"
+    embedding = embedder.embed([query])
+    movie_embedder = MovieEmbedder()
+    client, collection = movie_embedder.get_chroma_collection_client()
+    # print(client.get_status())
+    print(client.list_collections())
+    print(client.get_user_identity())
+    print(f"Collection name: {collection.name}")
+    print(f"Collection metadata: {collection.metadata}")
+    print(f"Collection embedding function: {collection.get()}")
+    print(f"Collection embedding function: {collection._embedding_function}")
+    documents = collection.get()['documents']
+    print(f"Number of documents in collection: {len(documents)}")    
