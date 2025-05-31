@@ -47,9 +47,9 @@ def get_movie_info_from_link(link):
     driver = get_driver()
     go_to_url(driver, link)
     try:
-        image_div = driver.find_element(By.XPATH, "//div[@class='zoomWindow']")
-        image_style = image_div.get_attribute("style")
-        image_url = image_style.split("url(")[1].split(")")[0].replace("'", "").replace('"', "")
+        image = driver.find_elements(By.XPATH, "//img[@class='gallery-image']")
+        poster_path = image[0].get_attribute("src") if image else None
+        backdrop_path = image[1].get_attribute("src") if len(image) > 1 else None
         name = driver.find_element(By.XPATH, "//div[@class='product-name']").text
         director = driver.find_element(By.XPATH, "//div[contains(@class, 'movie-director')]").text.split("\n ")[1]
         actors = driver.find_element(By.XPATH, "//div[contains(@class, 'movie-actress')]").text.split("\n ")[1]
@@ -79,7 +79,8 @@ def get_movie_info_from_link(link):
             "language": language,
             "rating": rated,
             "description": description,
-            "poster": image_url,
+            "poster_path": poster_path,
+            "backdrop_path": backdrop_path,
             "trailer": trailer_url,
         }
     except Exception as e:
