@@ -79,6 +79,7 @@ async def create_comment(payload: CommentCreate, request: Request = None):
         raise HTTPException(status_code=400, detail="Comment text cannot be empty")
 
     response = await get_user_from_request(request)
+    logging.error(f"Response from get_user_from_request: {response}")
     if response.get("status_code") != 200:
         raise HTTPException(status_code=response.get("status_code"), detail=response.get("message", "Failed to fetch user information"))
     user = response.get("user")

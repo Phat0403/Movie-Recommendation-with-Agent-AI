@@ -17,6 +17,7 @@ async def get_user_from_request(request: Request):
     if not authorization_header.startswith("Bearer "):
         return {"status_code": 401, "message": "Invalid authorization header format"}
     token = authorization_header.split(" ")[1]
+    logging
     if not token:
         return {"status_code": 401, "message": "Token is required"}
     try:

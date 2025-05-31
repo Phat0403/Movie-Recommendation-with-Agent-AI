@@ -19,6 +19,7 @@ class AuthService:
         db_user = self.user_controller.get(User, username=username)
         if db_user is None:
             return {"error": "User not found", "status": 404}
+        logging.warning(f"Current user: {db_user.username}")
         return db_user
     
     async def send_register_otp_email(self, username: str, password: str, email: str = None, redis_client: RedisClient = None):
