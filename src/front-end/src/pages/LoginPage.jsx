@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MailIcon from '../components/icons/MailIcon';
 import GoogleIcon from '../components/icons/GoogleIcon'; // Assuming GoogleIcon might be used later
 import LockIcon from '../components/icons/LockIcon';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 // FilmReelIcon component as provided
 const FilmReelIcon = (props) => (
@@ -18,7 +19,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const auth = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -45,11 +46,8 @@ const LoginPage = () => {
       const responseData = await response.json(); // Backend returns JSONResponse
 
       if (response.ok) {
-        // Login successful
-        //Lưu token vào localStorage hoặc sessionStorage nếu cần
-        localStorage.setItem('token', responseData.access_token); // Assuming the token is returned in access_token
+        auth.login(username, responseData.access_token); // Assuming your auth context has a login method
         console.log('Login successful:', responseData);
-        navigate('/'); // Adjust as needed
       } else {
         // Login failed, backend should return an error message
         // FastAPI's HTTPException often provides error details in responseData.detail
@@ -64,7 +62,11 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
-
+   useEffect(() => {
+    if (auth.currentUser) {
+      navigate('/'); // Or to a dashboard, or previous intended page
+    }
+  }, [auth.currentUser, navigate]);
 
 
   const handleRegisterClick = (e) => {

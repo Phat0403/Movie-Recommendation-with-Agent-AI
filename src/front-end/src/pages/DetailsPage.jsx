@@ -6,6 +6,10 @@ import moment from "moment";
 import VideoPlay from '../components/VideoPlay';
 import { useFetchTheMovieDb } from '../hooks/useFetchCast';
 import CastList from '../components/CastList';
+import CommentSection from '../components/CommentSection';
+import { useAuth } from '../hooks/useAuth';
+
+
 const formatMinutesToHours = (minutes) => {
   const hrs = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -23,6 +27,7 @@ const StrToArray = (str) => {
 
 const DetailsPage = () => {
   const { id } = useParams();
+  const { currentUser, loadingAuth } = useAuth();
   const {
     data: detailsData,
     isLoading: detailsLoading,
@@ -43,6 +48,9 @@ const DetailsPage = () => {
     setPlayVideo(true);
   };
   const writer = castData?.crew?.filter(el => el?.job === "Writer")?.map(el => el?.name)?.join(", ")
+  if (detailsLoading || castLoading || loadingAuth) { // assuming these are your loading states
+    return <div>Loading...</div>;
+  }
   return (
     <div>
       <div className="w-full h-[280px] relative hidden lg:block">
@@ -130,6 +138,10 @@ const DetailsPage = () => {
           <Divider />
 
           <CastList castData={castData} />
+          <Divider />
+          {!loadingAuth && ( // Only render CommentSection once auth status is known
+           <CommentSection movieId={id} currentUser={currentUser} />
+      )}
         </div>
       </div>
 
