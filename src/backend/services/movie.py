@@ -423,7 +423,7 @@ class MovieService:
             links = get_link_from_elements(elements)
             # Use ThreadPoolExecutor to fetch data concurrently
             driver.quit()
-            with ThreadPoolExecutor(max_workers=3) as executor:
+            with ThreadPoolExecutor(max_workers=4) as executor:
                 results = list(executor.map(get_movie_info_from_link, links))
 
         except Exception as e:
@@ -484,7 +484,7 @@ async def main():
     mongo_client = MongoClient("mongodb://root:example@localhost:27017", "movie_db")
     es_client = ElasticSearchClient("http://localhost:9200", "elastic", "changeme")
     redis_client = RedisClient(host="localhost", port=6379, db=0, password=None)
-    chroma_client = ChromaDBClient()
+    # chroma_client = ChromaDBClient()
     movie_service = MovieService(mongo_client, es_client, redis_client, None)
     # result = await movie_service.recommend("tt10872600", 10)
     # print(result)
