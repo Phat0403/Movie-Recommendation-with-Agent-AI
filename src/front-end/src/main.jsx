@@ -14,6 +14,7 @@ import SearchPage from './pages/SearchPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import TheaterMovies from './pages/TheaterMovies.jsx';
+import DetailsTheater from './pages/DetailsTheater.jsx';
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
         path: '/theater-movies', 
         element: <TheaterMovies />
       },
+      {
+      path: '/theater-movie/:id',
+      element: <DetailsTheater />,
+    },
     {
       path: '/explore',
       element: <ExplorePage/>

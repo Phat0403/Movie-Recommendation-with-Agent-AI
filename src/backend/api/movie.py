@@ -147,17 +147,7 @@ async def search_movies_by_director(director: str):
         logging.error(f"Error searching movies by director: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/showtimes")
-async def get_showtimes():
-    """
-    Get showtimes for movies.
-    """
-    try:
-        showtimes = await movie_service.get_cinestar_showtimes()
-        return JSONResponse(content=showtimes, status_code=200)
-    except Exception as e:
-        logging.error(f"Error fetching showtimes: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+
     
 @router.get("/movies/recommend/{movie_id}", response_model=MovieList)
 async def recommend_movies(movie_id: str):
@@ -170,3 +160,30 @@ async def recommend_movies(movie_id: str):
     except Exception as e:
         logging.error(f"Error recommending movies: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@router.get("/showtimes")
+async def get_showtimes():
+    """
+    Get showtimes for movies.
+    """
+    try:
+        showtimes = await movie_service.get_cinestar_showtimes()
+        return JSONResponse(content=showtimes, status_code=200)
+    except Exception as e:
+        logging.error(f"Error fetching showtimes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.get("/showtimes/{id}")
+async def get_showtimes(id: str):
+    """
+    Get showtimes for movies.
+    """
+    try:
+        showtimes = await movie_service.get_cinestar_showtimes()
+        return JSONResponse(content=showtimes[int(id)], status_code=200)
+    except Exception as e:
+        logging.error(f"Error fetching showtimes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))    

@@ -70,6 +70,7 @@ def get_movie_info_from_link(link):
         else:
             trailer_url = None
         info = {
+            "link": link,
             "name": name,
             "director": director,
             "actors": actors,
