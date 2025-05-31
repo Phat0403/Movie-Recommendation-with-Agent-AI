@@ -423,7 +423,7 @@ class MovieService:
             links = get_link_from_elements(elements)
             # Use ThreadPoolExecutor to fetch data concurrently
             driver.quit()
-            with ThreadPoolExecutor(max_workers=5) as executor:
+            with ThreadPoolExecutor(max_workers=3) as executor:
                 results = list(executor.map(get_movie_info_from_link, links))
 
         except Exception as e:
@@ -485,9 +485,9 @@ async def main():
     es_client = ElasticSearchClient("http://localhost:9200", "elastic", "changeme")
     redis_client = RedisClient(host="localhost", port=6379, db=0, password=None)
     chroma_client = ChromaDBClient()
-    movie_service = MovieService(mongo_client, es_client, redis_client, chroma_client)
-    result = await movie_service.recommend("tt10872600", 10)
-    print(result)
+    movie_service = MovieService(mongo_client, es_client, redis_client, None)
+    # result = await movie_service.recommend("tt10872600", 10)
+    # print(result)
     
     # print("=== Get Movies ===")
     # movies = await movie_service.get_movie_description_by_tconst("tt0070596")
@@ -500,9 +500,9 @@ async def main():
     # # Close the database connection
     # mongo_client.close()
     # await es_client.close()
-    # result = await movie_service.get_cinestar_showtimes()
-    # print(result)
-    # await redis_client.delete(f"cinestar_showtimes_{get_current_date()}")
+    await redis_client.delete(f"cinestar_showtimes_{get_current_date()}")
+    result = await movie_service.get_cinestar_showtimes()
+    print(result)
 
 if __name__ == "__main__":
     import asyncio
