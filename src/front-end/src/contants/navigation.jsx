@@ -7,7 +7,7 @@ import { href } from "react-router-dom";
 
 export const navigation = [
     { label: "Movie Shows", href: "/explore", icon: <PiTelevisionFill/> },
-    { label: "Movies", href: "/about", icon: <BiSolidMoviePlay /> },
+    { label: "Theater Movies", href: "/theater-movies", icon: <BiSolidMoviePlay /> },
   ];
 
 export const mobileNavigation = [

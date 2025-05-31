@@ -380,7 +380,7 @@ class MovieService:
 
         return await collection.aggregate(pipeline).to_list()
     
-    async def search_movie_by_name(self, name: str = "", size: int = 5) -> List[Dict[str, Any]]:
+    async def search_movie_by_name(self, name: str = "", size: int = 10) -> List[Dict[str, Any]]:
         """
         Retrieve movies by name.
 

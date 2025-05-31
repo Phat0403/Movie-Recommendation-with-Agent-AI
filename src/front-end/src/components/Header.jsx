@@ -95,13 +95,18 @@ const Header = () => {
   // const avatarToDisplay = userDetailsFromStorage?.avatarUrl || userIcon;
   // For now, sticking to the original static userIcon:
   const avatarToDisplay = userIcon;
-
+const FilmReelIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" {...props}>
+    <path d="M18 3H6C4.346 3 3 4.346 3 6V18C3 19.654 4.346 21 6 21H18C19.654 21 21 19.654 21 18V6C21 4.346 19.654 3 18 3ZM7 17H5V15H7V17ZM7 13H5V11H7V13ZM7 9H5V7H7V9ZM15 17H9V7H15V17ZM19 17H17V15H19V17ZM19 13H17V11H19V13ZM19 9H17V7H19V9Z"/>
+  </svg>
+);
 
   return (
     <header className="fixed top-0 w-full h-16 bg-black opacity-75 z-40">
       <div className="container mx-auto px-3 flex items-center h-full">
-        <Link to={"/"}>
-          <img src={logo} alt="logo" width={120} />
+        <Link to={"/"} className="flex items-center justify-center gap-2 mr-4">
+          <FilmReelIcon className="h-16 w-16 mx-auto text-sky-500 mb-2" />
+           <h1 className="hidden md:flex text-2xl font-bold text-white">CineSuggest</h1>
         </Link>
         <nav className="hidden lg:flex items-center gap-1 ml-5">
           {navigation.map((nav, index) => (

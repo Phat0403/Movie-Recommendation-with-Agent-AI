@@ -105,7 +105,8 @@ const CommentSection = ({ movieId, currentUser }) => {
 
   const handleSaveEdit = (e) => {
     e.preventDefault();
-    if (!editingComment || !editingComment.text.trim() || !currentUser) return;
+    console.log('editingComment', editingComment);
+    if (!editingComment || !editingComment?.text.trim() || !currentUser) return;
     setSubmissionError(null);
     updateCommentMutation.mutate({
       commentId: editingComment.id,
@@ -127,37 +128,7 @@ const CommentSection = ({ movieId, currentUser }) => {
 
       {displayError && <p className="text-red-500 bg-red-100 border border-red-500 p-3 rounded mb-4">Error: {displayError}</p>}
 
-      {currentUser ? (
-        <form onSubmit={handleCommentSubmit} className="mb-8">
-          <textarea
-            className="w-full p-3 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:ring-orange-500 focus:border-orange-500"
-            rows="4"
-            placeholder="Write your comment..."
-            value={newCommentText}
-            onChange={(e) => setNewCommentText(e.target.value)}
-            disabled={isMutating}
-          />
-          <button
-            type="submit"
-            disabled={!newCommentText.trim() || isMutating}
-            className="mt-3 py-2 px-6 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded disabled:bg-gray-600 disabled:cursor-not-allowed"
-          >
-            {createCommentMutation.isPending ? 'Submitting...' : 'Post Comment'}
-          </button>
-        </form>
-      ) : (
-        <div className="mb-8 p-4 bg-gray-800 border border-gray-700 rounded text-center">
-          <p className="text-gray-400">
-            You need to be logged in to post a comment.
-          </p>
-          <button
-            onClick={() => navigate('/login')} // Assuming you have a /login route
-            className="mt-2 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
-          >
-            Login
-          </button>
-        </div>
-      )}
+      
 
       {comments.length > 0 ? (
         <ul className="space-y-6">
@@ -173,7 +144,7 @@ const CommentSection = ({ movieId, currentUser }) => {
                     disabled={isMutating}
                   />
                   <div className="mt-2 space-x-2">
-                    <button type="submit" disabled={isMutating || !editingComment.text.trim()} className="py-1 px-3 bg-green-600 hover:bg-green-700 text-white text-sm rounded disabled:bg-gray-500">
+                    <button type="submit" disabled={isMutating || !editingComment.text?.trim()} className="py-1 px-3 bg-green-600 hover:bg-green-700 text-white text-sm rounded disabled:bg-gray-500">
                       {updateCommentMutation.isPending && updateCommentMutation.variables?.commentId === comment.id ? 'Saving...' : 'Save'}
                     </button>
                     <button type="button" onClick={handleCancelEdit} disabled={isMutating} className="py-1 px-3 bg-gray-600 hover:bg-gray-500 text-white text-sm rounded">
@@ -186,8 +157,9 @@ const CommentSection = ({ movieId, currentUser }) => {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="font-semibold text-orange-500">{comment.username}</p>
+                      <p>{comment.comment}</p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {moment(comment.created_at).format('MMMM Do YYYY, h:mm a')}
+                        {moment(comment.comment_time).format('MMMM Do YYYY, h:mm a')}
                         {comment.updated_at && comment.updated_at !== comment.created_at &&
                           <span className="italic"> (edited {moment(comment.updated_at).fromNow()})</span>
                         }
@@ -220,6 +192,37 @@ const CommentSection = ({ movieId, currentUser }) => {
         </ul>
       ) : (
         !isLoadingComments && !fetchError && <p className="text-gray-500">No comments yet. Be the first to comment!</p>
+      )}
+      {currentUser ? (
+        <form onSubmit={handleCommentSubmit} className="mt-8">
+          <textarea
+            className="w-full p-3 bg-gray-800 border border-gray-700 rounded text-white placeholder-gray-500 focus:ring-orange-500 focus:border-orange-500"
+            rows="4"
+            placeholder="Write your comment..."
+            value={newCommentText}
+            onChange={(e) => setNewCommentText(e.target.value)}
+            disabled={isMutating}
+          />
+          <button
+            type="submit"
+            disabled={!newCommentText.trim() || isMutating}
+            className="mt-3 py-2 px-6 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded disabled:bg-gray-600 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {createCommentMutation.isPending ? 'Submitting...' : 'Post Comment'}
+          </button>
+        </form>
+      ) : (
+        <div className="mt-8 p-4 bg-gray-800 border border-gray-700 rounded text-center">
+          <p className="text-gray-400">
+            You need to be logged in to post a comment.
+          </p>
+          <button
+            onClick={() => navigate('/login')} // Assuming you have a /login route
+            className="mt-2 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
+          >
+            Login
+          </button>
+        </div>
       )}
     </div>
   );

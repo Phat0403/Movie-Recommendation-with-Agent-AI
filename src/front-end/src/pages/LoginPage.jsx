@@ -4,7 +4,7 @@ import GoogleIcon from '../components/icons/GoogleIcon'; // Assuming GoogleIcon 
 import LockIcon from '../components/icons/LockIcon';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 // FilmReelIcon component as provided
@@ -77,10 +77,10 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex flex-col justify-center items-center p-4 text-gray-100">
       <div className="w-full max-w-md bg-slate-800/80 backdrop-blur-lg shadow-2xl rounded-xl p-8 sm:p-6 space-y-4">
-        <div className="text-center">
+        <Link to="/" className="block text-center">
           <FilmReelIcon className="h-14 w-14 mx-auto text-sky-500 mb-2" />
           <h1 className="text-3xl font-bold text-white">CineSuggest</h1>
-        </div>
+        </Link>
 
         {error && (
           <div className="bg-rose-700/30 border border-rose-600 text-rose-300 px-4 py-3 rounded-lg text-sm" role="alert">
