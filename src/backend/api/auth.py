@@ -25,7 +25,7 @@ user_controller = UserController(db)
 auth_service = AuthService(user_controller)
 
 # Routes
-@router.get("/me", response_model=UserInDB)
+@router.get("/me")
 def get_current_user(token: str = Depends(oauth2_scheme)):
     user = auth_service.get_current_user(token)
     if user is None:
