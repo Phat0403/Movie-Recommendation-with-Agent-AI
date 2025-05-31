@@ -53,6 +53,19 @@ services:
     restart: always
     ports:
       - "6379:6379"
+  
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: backend
+  #   depends_on:
+  #     - mongo
+  #     - mysql
+  #     - redis
+  #     - elasticsearch
+  #   ports:
+  #     - "8000:8000"
 
 volumes:
   mongo_data:
