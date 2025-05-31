@@ -16,3 +16,4 @@ Dockerfile.*
 *.lock
 *.md
 *.python-version
+*.csv
