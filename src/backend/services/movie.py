@@ -483,7 +483,7 @@ async def main():
     # Example usage
     mongo_client = MongoClient("mongodb://root:example@localhost:27017", "movie_db")
     es_client = ElasticSearchClient("http://localhost:9200", "elastic", "changeme")
-    redis_client = RedisClient()
+    redis_client = RedisClient(host="localhost", port=6379, db=0, password=None)
     chroma_client = ChromaDBClient()
     movie_service = MovieService(mongo_client, es_client, redis_client, chroma_client)
     result = await movie_service.recommend("tt10872600", 10)
