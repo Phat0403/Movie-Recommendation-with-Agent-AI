@@ -88,7 +88,6 @@ async def create_comment(payload: CommentCreate, request: Request = None):
 
     try:
         response = comment_service.create(movie_id, username, comment_text)
-        logging.warning(f"Response from create_comment: {response}")
         return JSONResponse(content={"comment": response.as_dict(), "message": "Comment created successfully"}, status_code=201)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

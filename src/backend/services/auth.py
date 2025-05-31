@@ -44,7 +44,11 @@ class AuthService:
             return {"error": "Password must be at least 8 characters long and contain letters and numbers", "status": 400}
         if not email_validation(email):
             return {"error": "Invalid email format", "status": 400}
-        otp_code = send_email_verification(email)["code"]
+        response = send_email_verification(email)
+        otp_code = response.get("code")
+        if response.get("status") != 200:
+            logging.error(f"Failed to send verification email: {response.get('message')}")
+            return {"error": "Failed to send verification email", "status": response.get("status", 500)}
         if otp_code is None:
             return {"error": "Failed to send verification email", "status": 500}
         if redis_client is None:
@@ -111,7 +115,12 @@ class AuthService:
         if email is None:
             return {"error": "User have not initiated registration", "status": 400}
         
-        otp_code = send_email_verification(email)["code"]
+        response = send_email_verification(email)
+        otp_code = response["code"]
+        if response["status"] != 200:
+            logging.error(f"Failed to resend verification email: {response.get('message')}")
+            return {"error": "Failed to send verification email", "status": response.get("status", 500)}
+        
         if otp_code is None:
             return {"error": "Failed to send verification email", "status": 500}
         

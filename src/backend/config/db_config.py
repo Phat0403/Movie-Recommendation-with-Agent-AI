@@ -9,7 +9,6 @@ MONGO_PORT = "27017"
 MONGO_USERNAME = "root"
 MONGO_PASSWORD = "example"
 MONGO_URI = f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}"
-
 MONGO_DB_NAME = "movie_db"
 
 ES_SCHEMA = "http"
@@ -20,3 +19,8 @@ ES_PASSWORD = "changeme"
 ES_URL = f"{ES_SCHEMA}://{ES_HOST}:{ES_PORT}"
 
 CHROMA_DB_PATH = "chroma/" 
+
+REDIS_HOST = "localhost"
+REDIS_PORT = "6379"
+REDIS_DB = 0
+REDIS_PASSWORD = None

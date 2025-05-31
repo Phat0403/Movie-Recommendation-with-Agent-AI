@@ -4,10 +4,10 @@ from db.redis_client import RedisClient
 from db.session import SessionLocal
 from db.chroma import ChromaDBClient
 
-from config.db_config import ES_URL, ES_USERNAME, ES_PASSWORD, MONGO_URI
+from config.db_config import ES_URL, ES_USERNAME, ES_PASSWORD, MONGO_URI, REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD
 
 def get_redis_client():
-    return RedisClient()
+    return RedisClient(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD)
 
 def get_mongo_client():
     """
