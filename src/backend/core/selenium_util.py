@@ -85,17 +85,8 @@ def get_movie_info_from_link(link):
     except Exception as e:
         print(f"Error getting movie info from link '{link}': {e}")
         info = {
-            "name": None,
-            "director": None,
-            "actors": None,
-            "genres": None,
-            "release_date": None,
-            "duration": None,
-            "language": None,
-            "rating": None,
-            "description": None,
-            "poster": None,
-            "trailer": None,
+            "error": str(e),
+            "link": link
         }
     finally:
         driver.quit()
