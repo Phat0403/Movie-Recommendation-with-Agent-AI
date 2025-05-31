@@ -50,7 +50,7 @@ def get_movie_info_from_link(link):
         image = driver.find_elements(By.XPATH, "//img[@class='gallery-image']")
         poster_path = image[0].get_attribute("src") if image else None
         backdrop_path = image[1].get_attribute("src") if len(image) > 1 else None
-        name = driver.find_element(By.XPATH, "//div[@class='product-name']").text
+        name = driver.find_element(By.XPATH, "//li[@class='product']").text
         director = driver.find_element(By.XPATH, "//div[contains(@class, 'movie-director')]").text.split("\n ")[1]
         actors = driver.find_element(By.XPATH, "//div[contains(@class, 'movie-actress')]").text.split("\n ")[1]
         genres = driver.find_element(By.XPATH, "//div[contains(@class, 'movie-genre')]").text.split("\n ")[1]
