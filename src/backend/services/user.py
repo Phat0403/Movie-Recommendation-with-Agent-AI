@@ -20,6 +20,12 @@ class UserService:
         """
         print(f"Adding favorite movie: {movie_id} for user: {username}")
         db_favorite = Favorite(username=username, movie_id=movie_id)
+        existing_favorite = self.db.query(Favorite).filter(
+            Favorite.username == username,
+            Favorite.movie_id == movie_id
+        ).first()
+        if existing_favorite:
+            raise ValueError("Movie is already in favorites")
         try:
             self.db.add(db_favorite)
             self.db.commit()
@@ -41,19 +47,20 @@ class UserService:
         Returns:
             bool: True if the operation was successful, False otherwise.
         """
+        db_favorite = self.db.query(Favorite).filter(
+            Favorite.username == username,
+            Favorite.movie_id == movie_id
+        ).first()
+
+        if not db_favorite:
+            raise ValueError("Favorite movie not found")
+
         try:
-            db_favorite = self.db.query(Favorite).filter(
-                Favorite.username == username, 
-                Favorite.movie_id == movie_id
-            ).first()
-            if db_favorite:
-                self.db.delete(db_favorite)
-                self.db.commit()
-                return True
-            else:
-                raise ValueError("Favorite movie not found")
+            self.db.delete(db_favorite)
+            self.db.commit()
+            return True
         except Exception as e:
-            self.db.rollback()
+            self.db.rollback()  
             raise ValueError(f"Error removing favorite movie: {e}")
     
     def get_favorite_movies(self, username: str) -> list[str]:
