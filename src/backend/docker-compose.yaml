@@ -11,16 +11,16 @@ services:
     volumes:
       - mongo_data:/data/db
 
-  mongo-import:
-    build:
-      context: .
-      dockerfile: Dockerfile.mongo
-    container_name: mongo-import
-    depends_on:
-      - mongo
-    entrypoint: ["bash"]
-    command: ["/scripts/import.sh"]
-    restart: "no"
+  # mongo-import:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.mongo
+  #   container_name: mongo-import
+  #   depends_on:
+  #     - mongo
+  #   entrypoint: ["bash"]
+  #   command: ["/scripts/import.sh"]
+  #   restart: "no"
 
   mysql:
     image: mysql:8.0
@@ -30,8 +30,8 @@ services:
       MYSQL_DATABASE: movie_recommendation
     ports:
       - "3306:3306"
-    # volumes:
-    # - mysql_data:/var/lib/mysql
+    volumes:
+    - mysql_data:/var/lib/mysql
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
     container_name: es
@@ -53,6 +53,19 @@ services:
     restart: always
     ports:
       - "6379:6379"
+  
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: backend
+  #   depends_on:
+  #     - mongo
+  #     - mysql
+  #     - redis
+  #     - elasticsearch
+  #   ports:
+  #     - "8000:8000"
 
 volumes:
   mongo_data:

@@ -2,7 +2,7 @@ from redis.asyncio import StrictRedis
 from typing import Optional
 
 class RedisClient:
-    def __init__(self, host: str = 'localhost', port: int = 6379, db: int = 0, password: Optional[str] = None):
+    def __init__(self, host: str = 'redis', port: int = 6379, db: int = 0, password: Optional[str] = None):
         """
         Initialize Redis client
         

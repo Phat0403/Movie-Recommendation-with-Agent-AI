@@ -61,7 +61,7 @@ def decode_token(token: str) -> Optional[dict]:
 
 def get_username_from_token(token: str) -> Optional[str]:
     payload = decode_token(token)
-    return payload.get("sub") if payload else None
+    return payload.get("username") if payload else None
 
 def get_role_from_token(token: str) -> Optional[str]:
     payload = decode_token(token)

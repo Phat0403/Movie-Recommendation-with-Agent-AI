@@ -3,11 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.auth import router as auth_router
 from api.movie import router as movie_router
-from db.session import engine
-from models.user import User
+from api.comment import router as comment_router
+from db.session import engine, Base
 
 # Create the database tables if they don't exist
-User.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
 
@@ -28,6 +28,7 @@ app.add_middleware(
 # Include the user router
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(movie_router, prefix="/api", tags=["movies"])
+app.include_router(comment_router, prefix="/api", tags=["comments"])
 
 @app.get("/")
 async def root():

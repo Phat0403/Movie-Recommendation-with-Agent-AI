@@ -7,11 +7,14 @@ import './index.css';
 import App from './App.jsx';
 import Home from './pages/Home.jsx';
 import About from './pages/About.jsx';
-import Login from './pages/Login.jsx';
-import Register from './pages/Register.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 import ExplorePage from './pages/ExplorePage.jsx';
 import DetailsPage from './pages/DetailsPage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import TheaterMovies from './pages/TheaterMovies.jsx';
+import DetailsTheater from './pages/DetailsTheater.jsx';
 
 const queryClient = new QueryClient();
 
@@ -25,15 +28,19 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: '/about', 
-        element: <About />
+        path: '/theater-movies', 
+        element: <TheaterMovies />
       },
+      {
+      path: '/theater-movie/:id',
+      element: <DetailsTheater />,
+    },
     {
       path: '/explore',
       element: <ExplorePage/>
     },
     {
-      path: '/explore/:id',
+      path: '/movie/:id',
       element: <DetailsPage/>
     },
       {
@@ -43,8 +50,9 @@ const router = createBrowserRouter([
     ],
 
   },
-  {path:'/login', element: <Login />},
-  {path:'/register', element: <Register />},
+  {path:'/login', element: <LoginPage />},
+  {path:'/register', element: <RegisterPage />},
+  {path:'/reset-password', element: <ResetPasswordPage />}, // Assuming you have a ResetPasswordPage component
 
 ]);
 

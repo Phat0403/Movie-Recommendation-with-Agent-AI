@@ -29,7 +29,7 @@ class ElasticSearchClient:
             http_auth=(self.username, self.password)
         )
     
-    async def fuzzy_search(self, index: str, field: str, value: str):
+    async def fuzzy_search(self, index: str, field: str, value: str, size: int = 10):
         """
         Perform a fuzzy search on the specified index and field.
 
@@ -37,11 +37,13 @@ class ElasticSearchClient:
             index (str): The name of the index.
             field (str): The field to search.
             value (str): The value to search for.
+            size (int): The maximum number of results to return.
 
         Returns:
             dict: The search results.
         """
         query = {
+            "size": size,
             "query": {
                 "match": {
                     field: {
@@ -52,6 +54,7 @@ class ElasticSearchClient:
             }
         }
         return await self.client.search(index=index, body=query)
+
     
     async def close(self):
         """

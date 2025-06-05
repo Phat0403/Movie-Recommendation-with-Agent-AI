@@ -1,9 +1,7 @@
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import pandas as pd
-import csv
-import sys
-# csv.field_size_limit(sys.maxsize)
+from tqdm import tqdm
 INDEX = "movie"
 
 # Initialize the Elasticsearch client
@@ -48,6 +46,8 @@ def insert_to_elastic_search(file_path: str = "/data/movie_director.csv", index:
     """
     # Read the CSV file
     df = pd.read_csv(file_path, encoding='utf-8', sep="\t", engine="python", on_bad_lines='warn')
+    df["averageRating"] = df["averageRating"].astype(float)
+    df["averageRating"] = df["averageRating"].fillna(0.0)
     df = df.fillna("None")
     # Convert DataFrame to dictionary
     docs = df.to_dict(orient='records')
@@ -62,10 +62,10 @@ def insert_to_elastic_search(file_path: str = "/data/movie_director.csv", index:
         for doc in docs
     ]
 
-    for doc in docs:
+    for doc in tqdm(docs):
         # Insert each document into Elasticsearch
         try:
-            es.index(index=index, id=doc["_id"], body=doc["_source"])
+            es.index(index=index, id=doc["_id"], document=doc["_source"])
         except Exception as e:
             print(f"Error inserting document with ID: {doc['_id']}. Error: {e}")
 
@@ -98,11 +98,14 @@ if __name__ == "__main__":
             "directors": {
                 "type": "text",
                 "fields": { "raw": { "type": "keyword" } }
-            }
+            },
+
+            "backdropPath": { "type": "text", "index": False },
+            "averageRating": { "type": "float" }
         }
     }
     if es.indices.exists(index=INDEX):
         es.indices.delete(index=INDEX)
         print(f"Đã xoá index cũ: {INDEX}")
-    response = bulk_data_to_elasticsearch("data/movie_director.csv")
+    response = insert_to_elastic_search("data/movie_director.csv")
     print(response)

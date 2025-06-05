@@ -1,8 +1,9 @@
 import React from 'react'
 import moment from 'moment'
+import { Link } from 'react-router-dom'
 const Card = ({data, trending, index}) => {
   return (
-    <div className='w-full min-w-[260px] max-w-[260px] h-80 overflow-hidden rounded relative block transition-all hover:scale-105 cursor-pointer'>
+    <Link to={"/"+'movie/'+data.tconst} className='w-full min-w-[260px] max-w-[260px] h-80 overflow-hidden rounded relative block transition-all hover:scale-105 cursor-pointer'>
         <img src={data.posterPath} />
         <div className='absolute top-4'>
             {trending && (
@@ -20,7 +21,7 @@ const Card = ({data, trending, index}) => {
         </div>
 
 
-    </div>
+    </Link>
   )
 }
 
