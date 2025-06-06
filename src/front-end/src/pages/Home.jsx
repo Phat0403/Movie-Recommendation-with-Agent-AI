@@ -29,6 +29,21 @@ const Home = () => {
     isLoading: isMoviePopularLoading,
     error: errorPopularTVShow,
   } = useFetch("/movies/numVote", "movies-numVote");
+  const {
+    data: theaterMovies,
+    isLoading,
+    isError, 
+  } =  useQuery({
+    queryKey: ['theater-movies'],
+    queryFn: async () => {
+      const res = await fetch('http://localhost:8000/api/showtimes');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ detail: "Network response was not ok" }));
+        throw new Error(errorData.detail || "Failed to fetch theater movies");
+      }
+      return res.json();
+    }
+  });
   return (
     <div>
       <BannerHome bannerData={bannerData} />
