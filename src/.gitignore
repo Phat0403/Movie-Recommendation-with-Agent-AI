@@ -2,3 +2,4 @@
 *.crc
 */_SUCCESS
 */data/*.csv
+src/.env
