@@ -464,17 +464,20 @@ class MovieService:
         Returns:
             List[Dict[str, Any]]: A list of recommended movies.
         """
+        top_k = top_k + 1  # Increase top_k by 1 to account for the input movie itself
         movie = await self.get_movie_description_by_tconst(movie_id)
+        
         movie = movie[0] if movie else None
         if not movie:
             raise ValueError(f"Movie with ID {movie_id} not found.")
         # Check if the movie is already cached in Redis
-        cached_recommendations = await self.redis_client.get(f"movie_recommendations_{movie_id}")
-        if cached_recommendations:
+        cached_recommendations = await self.redis_client.get(f"movie_recommendations_{movie_id}_{top_k}")
+        if cached_recommendations and len(cached_recommendations) > 0:
             recommended_movies = json.loads(cached_recommendations)
         else:
             results = self.chroma_client.query(movie["description"], n_results=top_k)
             movie_ids = results["ids"][0]
+            movie_ids = [mov_id for mov_id in movie_ids if mov_id != movie_id]  # Exclude the input movie itself from recommendations
             recommended_movies = await self.get_movies_by_list_tconst(movie_ids)
             await self.redis_client.set(f"movie_recommendations_{movie_id}", json.dumps(recommended_movies), expire=60 * 60)  # Cache for 1 hour
         return recommended_movies
