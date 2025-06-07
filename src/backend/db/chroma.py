@@ -31,15 +31,17 @@ class ChromaDBClient:
 if __name__ == "__main__":
     
     chroma_client = ChromaDBClient()
-    print("Collections available:", chroma_client.client.list_collections())
-    print(type(chroma_client.client))
-    print(type(chroma_client.collection))
-    query_text = "Spider"
+    # print("Collections available:", chroma_client.client.list_collections())
+    # print(type(chroma_client.client))
+    # print(type(chroma_client.collection))
+    query_text = "horror movie"
     results = chroma_client.query(query_text)
-    print(f"Query results for '{query_text}':")
-    print(results["documents"])
-    print("Metadata:", results["metadatas"])
-    print("IDs:", results["ids"])
-    print("URIs:", results["uris"])
-    print("Data: ", results["data"])
-    
+    # print(f"Query results for '{query_text}':")
+    # print(results["documents"])
+    # print("Metadata:", results["metadatas"])
+    # print("IDs:", results["ids"])
+    # print("URIs:", results["uris"])
+    ids = results.get("ids", [])[0]
+    documents = results.get("documents", [])[0]
+    results = [ids[i]+ ": " + documents[i] for i in range(len(ids))]
+    print(results)
