@@ -150,12 +150,12 @@ async def search_movies_by_director(director: str):
 
     
 @router.get("/movies/recommend/{movie_id}", response_model=MovieList)
-async def recommend_movies(movie_id: str):
+async def recommend_movies(movie_id: str, size: int = 10):
     """
     Recommend movies based on a given movie ID.
     """
     try:
-        recommendations = await movie_service.recommend(movie_id=movie_id)
+        recommendations = await movie_service.recommend(movie_id=movie_id, top_k=size)
         return JSONResponse(content=recommendations, status_code=200)
     except Exception as e:
         logging.error(f"Error recommending movies: {e}")

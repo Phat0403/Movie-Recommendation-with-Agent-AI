@@ -1,4 +1,3 @@
-
 import logging
 from logging import StreamHandler, Formatter, FileHandler
 import os
@@ -8,29 +7,37 @@ today = datetime.today()
 today_str = today.strftime("%Y-%m-%d")
 log_dir = "logs"
 
+# Đảm bảo thư mục logs tồn tại
+os.makedirs(log_dir, exist_ok=True)
+
 def get_logger(name: str) -> logging.Logger:
     """
     Create a logger with the specified name and optional log file.
-    
+
     Args:
         name (str): The name of the logger.
-        log_file (str, optional): The path to the log file. If not provided, logs will be printed to stdout.
-        
+
     Returns:
         logging.Logger: Configured logger instance.
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
-    # Create formatter
+    # Tránh tạo lại handler nếu logger đã được cấu hình
+    if logger.handlers:
+        return logger
+
+    # Định dạng log
     formatter = Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    # Create console handler
+    # Ghi ra console
     console_handler = StreamHandler()
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    file_handler = FileHandler(os.path.join(log_dir, f"{today_str}.log"))
+    # Ghi ra file với encoding UTF-8 (để tránh lỗi đọc ghi Unicode)
+    log_file_path = os.path.join(log_dir, f"{today_str}.log")
+    file_handler = FileHandler(log_file_path, encoding="utf-8")
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 

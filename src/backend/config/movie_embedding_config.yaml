@@ -1,4 +1,4 @@
-data_path: "data/movies_descriptions.txt"
+data_path: "data/movie_descriptions.txt"
 embedding_path: "data/movie_embeddings.npy"
 model: "intfloat/multilingual-e5-base"
 chroma_db_path: "chroma_db"
