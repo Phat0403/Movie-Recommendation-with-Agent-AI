@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { useParams } from "react-router-dom";
 import { useFetchDetails } from "../hooks/useFetchDetails";
 import Divider from "../components/Divider";
@@ -8,16 +8,19 @@ import { useFetchTheMovieDb } from '../hooks/useFetchCast';
 import CastList from '../components/CastList';
 import CommentSection from '../components/CommentSection';
 import { useAuth } from '../hooks/useAuth';
-
+import { addToMyList } from '../hooks/myListApi';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast'; // <-- 1. Import toast
 
 const formatMinutesToHours = (minutes) => {
   const hrs = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return `${hrs}h ${mins}m`;
 };
+
 const StrToArray = (str) => {
   try {
-    if (typeof str !== "string") return []; // kiểm tra str hợp lệ
+    if (typeof str !== "string") return [];
     return JSON.parse(str.replace(/'/g, '"'));
   } catch (e) {
     console.error("Invalid format", e);
@@ -28,6 +31,8 @@ const StrToArray = (str) => {
 const DetailsPage = () => {
   const { id } = useParams();
   const { currentUser, loadingAuth } = useAuth();
+  const queryClient = useQueryClient(); // <-- Lấy query client
+
   const {
     data: detailsData,
     isLoading: detailsLoading,
@@ -37,20 +42,60 @@ const DetailsPage = () => {
   const {
     data: castData,
     isLoading: castLoading,
-    error: castError,}
-  = useFetchTheMovieDb(`/movie/${id}/credits?language=en-US`, "cast-movie");
-  console.log(castData);
-  const genres = StrToArray(detailsData.genres);
+    error: castError,
+  } = useFetchTheMovieDb(`/movie/${id}/credits?language=en-US`, "cast-movie");
+
+  // <-- 2. Thiết lập useMutation
+  const addToListMutation = useMutation({
+    mutationFn: addToMyList, // Hàm thực hiện hành động
+    onSuccess: () => {
+      // Khi thành công
+      toast.success("Added to your list successfully!");
+      // Tùy chọn: Vô hiệu hóa và fetch lại query của "my-list" nếu có
+      // queryClient.invalidateQueries({ queryKey: ['my-list'] });
+    },
+    onError: (error) => {
+      // Khi có lỗi
+      console.error("Error adding to list:", error);
+      // Bạn có thể tùy chỉnh thông báo lỗi dựa trên `error` trả về từ API
+      const errorMessage = error.response?.data?.message || "Failed to add to your list. Please try again.";
+      toast.error(errorMessage);
+    },
+  });
+
+
   const [playVideo, setPlayVideo] = useState(false);
   const [playVideoId, setPlayVideoId] = useState("");
+
+  if (detailsLoading || castLoading || loadingAuth) {
+    return <div>Loading...</div>;
+  }
+  // Nếu có lỗi fetch data, bạn nên hiển thị thông báo
+  if (detailsError || castError) {
+    return <div>Error loading movie details.</div>;
+  }
+
+  const genres = StrToArray(detailsData.genres);
+
   const handlePlayVideo = (url) => {
     setPlayVideoId(url);
     setPlayVideo(true);
   };
-  const writer = castData?.crew?.filter(el => el?.job === "Writer")?.map(el => el?.name)?.join(", ")
-  if (detailsLoading || castLoading || loadingAuth) { // assuming these are your loading states
-    return <div>Loading...</div>;
-  }
+
+  const writer = castData?.crew?.filter(el => el?.job === "Writer")?.map(el => el?.name)?.join(", ");
+
+  // <-- 3. Cập nhật handleAddToList để sử dụng mutation
+  const handleAddToList = () => {
+    if (!currentUser) {
+      toast.error("Please login to add to your list"); // Thay thế alert
+      return;
+    }
+    addToListMutation.mutate({
+      movieId: id,
+      token: currentUser?.token,
+    });
+  };
+
   return (
     <div>
       <div className="w-full h-[280px] relative hidden lg:block">
@@ -75,6 +120,14 @@ const DetailsPage = () => {
           >
             Play Now
           </button>
+          {/* 4. Cập nhật nút Add to MyList */}
+          <button
+            onClick={handleAddToList}
+            disabled={addToListMutation.isPending} // Vô hiệu hóa nút khi đang gửi request
+            className="mt-3 w-full py-2 px-4 text-center bg-white text-black rounded font-bold text-lg hover:bg-gradient-to-l from-red-500 to-orange-500 hover:scale-105 transition-all cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {addToListMutation.isPending ? 'Adding...' : 'Add to MyList'}
+          </button>
         </div>
 
         <div>
@@ -85,7 +138,7 @@ const DetailsPage = () => {
           <div className="flex items-center gap-2">
             <p>Genres:</p>
             {genres
-              .filter((genre) => genre && genre.trim()) // lọc bỏ genre rỗng
+              .filter((genre) => genre && genre.trim())
               .map((genre, index, arr) => (
                 <span key={index}>
                   {genre}
@@ -139,24 +192,11 @@ const DetailsPage = () => {
 
           <CastList castData={castData} />
           <Divider />
-          {!loadingAuth && ( // Only render CommentSection once auth status is known
+          {!loadingAuth && (
            <CommentSection movieId={id} currentUser={currentUser} />
-      )}
+          )}
         </div>
       </div>
-
-      {/* <div>
-        <HorizontalScollCard
-          data={similarData}
-          heading={"Similar " + params?.explore}
-          media_type={params?.explore}
-        />
-        <HorizontalScollCard
-          data={recommendationData}
-          heading={"Recommendation " + params?.explore}
-          media_type={params?.explore}
-        />
-      </div> */}
 
       {playVideo && (
         <VideoPlay

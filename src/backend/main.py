@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.auth import router as auth_router
-# from api.movie import router as movie_router
+from api.movie import router as movie_router
 from api.comment import router as comment_router
 from api.user import router as user_router
 from db.session import engine, Base
@@ -28,7 +28,7 @@ app.add_middleware(
 
 # Include the user router
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
-# app.include_router(movie_router, prefix="/api", tags=["movies"])
+app.include_router(movie_router, prefix="/api", tags=["movies"])
 app.include_router(comment_router, prefix="/api", tags=["comments"])
 app.include_router(user_router, prefix="/api/user", tags=["user"])
 
