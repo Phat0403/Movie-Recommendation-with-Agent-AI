@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from "react-router-dom";
 import { useFetchDetails } from "../hooks/useFetchDetails";
 import Divider from "../components/Divider";
@@ -11,7 +11,9 @@ import { useAuth } from '../hooks/useAuth';
 import { addToMyList } from '../hooks/myListApi';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast'; // <-- 1. Import toast
-
+import { useFetch } from '../hooks/useFetch';
+import HorizontalScrollCard from '../components/HorizontalScrollCard';
+import { useLocation } from 'react-router-dom';
 const formatMinutesToHours = (minutes) => {
   const hrs = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -30,6 +32,10 @@ const StrToArray = (str) => {
 
 const DetailsPage = () => {
   const { id } = useParams();
+  const location = useLocation();
+ useEffect(() => {
+     window.scrollTo(0, 0);
+  },[id]);
   const { currentUser, loadingAuth } = useAuth();
   const queryClient = useQueryClient(); // <-- Lấy query client
 
@@ -62,8 +68,7 @@ const DetailsPage = () => {
       toast.error(errorMessage);
     },
   });
-
-
+  const {data: recommendationsData, isLoading: recommendationsLoading, error: recommendationsError} = useFetch(`/movies/recommend/${id}`, "recommendations-movie");
   const [playVideo, setPlayVideo] = useState(false);
   const [playVideoId, setPlayVideoId] = useState("");
 
@@ -74,7 +79,7 @@ const DetailsPage = () => {
   if (detailsError || castError) {
     return <div>Error loading movie details.</div>;
   }
-
+console.log(recommendationsData)
   const genres = StrToArray(detailsData.genres);
 
   const handlePlayVideo = (url) => {
@@ -95,7 +100,7 @@ const DetailsPage = () => {
       token: currentUser?.token,
     });
   };
-
+ 
   return (
     <div>
       <div className="w-full h-[280px] relative hidden lg:block">
@@ -191,12 +196,13 @@ const DetailsPage = () => {
           <Divider />
 
           <CastList castData={castData} />
-          <Divider />
           {!loadingAuth && (
            <CommentSection movieId={id} currentUser={currentUser} />
           )}
+          <Divider />
         </div>
       </div>
+          <HorizontalScrollCard data={recommendationsData} heading={"Recommendations"} />
 
       {playVideo && (
         <VideoPlay

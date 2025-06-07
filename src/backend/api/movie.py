@@ -124,12 +124,12 @@ async def get_movies_by_nconst(nconst: str):
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.get("/movies/search/by-title", response_model=MovieInESList)
-async def search_movies(title: str):
+async def search_movies(title: str, size: int =50):
     """
     Search for movies by title.
     """
     try:
-        movies = await movie_service.search_movie_by_name(title)
+        movies = await movie_service.search_movie_by_name(title, size=size)
         return JSONResponse(content=movies, status_code=200)
     except Exception as e:
         logging.error(f"Error searching movies by title: {e}")

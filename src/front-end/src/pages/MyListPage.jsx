@@ -77,7 +77,7 @@ const MyListPage = () => {
   return null; // Trả về null nếu chưa đăng nhập
   }
   return (
-    <div className='py-16'>
+    <div className='py-16 h-screen'>
       <div className='container mx-auto'>
         <h3 className='capitalize text-lg lg:text-xl font-semibold my-3'>My List</h3>
         
