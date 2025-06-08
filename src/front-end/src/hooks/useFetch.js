@@ -7,7 +7,7 @@ export const useFetch = (endpoint, key) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: [endpoint, key],
+    queryKey: [endpoint],
     queryFn: async () => {
       const res = await fetch('http://localhost:8000/api'+endpoint);
       if (!res.ok) {

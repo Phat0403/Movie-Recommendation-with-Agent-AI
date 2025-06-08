@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 
 export const useFetchTheMovieDb = (endpoint, key) => {
+  console.log('https://api.themoviedb.org/3'+endpoint)
   const {
     data = [],
     isLoading,
     error,
   } = useQuery({
-    queryKey: [key],
+    queryKey: [endpoint,key],
     queryFn: async () => {
       const res = await fetch('https://api.themoviedb.org/3'+endpoint, {
         method: 'GET',

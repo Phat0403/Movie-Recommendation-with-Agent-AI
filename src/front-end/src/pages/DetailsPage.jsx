@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useLocation } from "react-router-dom";
 import { useFetchDetails } from "../hooks/useFetchDetails";
 import Divider from "../components/Divider";
 import moment from "moment";
-import VideoPlay from '../components/VideoPlay';
-import { useFetchTheMovieDb } from '../hooks/useFetchCast';
-import CastList from '../components/CastList';
-import CommentSection from '../components/CommentSection';
-import { useAuth } from '../hooks/useAuth';
-import { addToMyList } from '../hooks/myListApi';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-hot-toast'; // <-- 1. Import toast
-import { useFetch } from '../hooks/useFetch';
-import HorizontalScrollCard from '../components/HorizontalScrollCard';
-import { useLocation } from 'react-router-dom';
+import VideoPlay from "../components/VideoPlay";
+import { useFetchTheMovieDb } from "../hooks/useFetchCast";
+import CastList from "../components/CastList";
+import CommentSection from "../components/CommentSection";
+import { useAuth } from "../hooks/useAuth";
+import { addToMyList } from "../hooks/myListApi";
+import { useMutation, useQueryClient, useQueries } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { useFetch } from "../hooks/useFetch"; // This is okay for single fetches at the top level
+import HorizontalScrollCard from "../components/HorizontalScrollCard";
+
 const formatMinutesToHours = (minutes) => {
   const hrs = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -28,16 +28,31 @@ const StrToArray = (str) => {
     console.error("Invalid format", e);
     return [];
   }
-}
+};
+
+// Define your actual fetcher function here.
+// This function should NOT be a hook. It's just a regular async function.
+// It should match what your `useFetch` hook does internally.
+const apiFetcher = async (endpoint) => {
+  // Replace this with your actual API URL and fetching logic (e.g., using axios)
+  const response = await fetch(`http://localhost:8000/api/movies/by-genre?genre=${endpoint}`);
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
 
 const DetailsPage = () => {
   const { id } = useParams();
   const location = useLocation();
- useEffect(() => {
-     window.scrollTo(0, 0);
-  },[id]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id, location.pathname]); // Added location.pathname to re-scroll on same component but different page
+
   const { currentUser, loadingAuth } = useAuth();
-  const queryClient = useQueryClient(); // <-- Lấy query client
+  const queryClient = useQueryClient();
 
   const {
     data: detailsData,
@@ -50,49 +65,71 @@ const DetailsPage = () => {
     isLoading: castLoading,
     error: castError,
   } = useFetchTheMovieDb(`/movie/${id}/credits?language=en-US`, "cast-movie");
+console.log("Cast Data:", castData);
+  const {
+    data: recommendationsData,
+    isLoading: recommendationsLoading,
+    error: recommendationsError,
+  } = useFetch(`/movies/recommend/${id}`, "recommendations-movie");
 
-  // <-- 2. Thiết lập useMutation
   const addToListMutation = useMutation({
-    mutationFn: addToMyList, // Hàm thực hiện hành động
+    mutationFn: addToMyList,
     onSuccess: () => {
-      // Khi thành công
       toast.success("Added to your list successfully!");
-      // Tùy chọn: Vô hiệu hóa và fetch lại query của "my-list" nếu có
-      // queryClient.invalidateQueries({ queryKey: ['my-list'] });
+      queryClient.invalidateQueries({ queryKey: ["my-list"] }); // It's good practice to invalidate the list
     },
     onError: (error) => {
-      // Khi có lỗi
       console.error("Error adding to list:", error);
-      // Bạn có thể tùy chỉnh thông báo lỗi dựa trên `error` trả về từ API
-      const errorMessage = error.response?.data?.message || "Failed to add to your list. Please try again.";
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to add to your list. Item may already be in the list.";
       toast.error(errorMessage);
     },
   });
-  const {data: recommendationsData, isLoading: recommendationsLoading, error: recommendationsError} = useFetch(`/movies/recommend/${id}`, "recommendations-movie");
+
   const [playVideo, setPlayVideo] = useState(false);
   const [playVideoId, setPlayVideoId] = useState("");
 
+  const genres = detailsData ? StrToArray(detailsData.genres) : [];
+console.log("Genres:", genres);
+  // ***** CORRECTED useQueries HOOK *****
+  const movieByGenreQueries = useQueries({
+    queries: genres
+      .filter((g) => g && g.trim()) // Filter out any empty/null genres
+      .map((genre) => ({
+        queryKey: ["movie-by-genre", genre],
+        // Use a regular async fetcher function here, NOT a hook.
+        queryFn: () => apiFetcher(genre),
+        enabled: !!genre && genre.length > 0, // This is correct, it enables the query only when genre exists
+      })),
+  });
+  
+  // Extract data from the queries
+  const movieByGenreData = movieByGenreQueries
+    .map((query) => query.data)
+    .filter((data) => data && data.length > 0);
+  console.log("Movie by Genre Data:", movieByGenreData);
   if (detailsLoading || castLoading || loadingAuth) {
     return <div>Loading...</div>;
   }
-  // Nếu có lỗi fetch data, bạn nên hiển thị thông báo
+
   if (detailsError || castError) {
     return <div>Error loading movie details.</div>;
   }
-console.log(recommendationsData)
-  const genres = StrToArray(detailsData.genres);
 
-  const handlePlayVideo = (url) => {
-    setPlayVideoId(url);
+  const handlePlayVideo = () => {
+    setPlayVideoId(detailsData.trailerPath);
     setPlayVideo(true);
   };
 
-  const writer = castData?.crew?.filter(el => el?.job === "Writer")?.map(el => el?.name)?.join(", ");
+  const writer = castData?.crew
+    ?.filter((el) => el?.job === "Writer")
+    ?.map((el) => el?.name)
+    ?.join(", ");
 
-  // <-- 3. Cập nhật handleAddToList để sử dụng mutation
   const handleAddToList = () => {
     if (!currentUser) {
-      toast.error("Please login to add to your list"); // Thay thế alert
+      toast.error("Please login to add to your list");
       return;
     }
     addToListMutation.mutate({
@@ -100,13 +137,14 @@ console.log(recommendationsData)
       token: currentUser?.token,
     });
   };
- 
+
   return (
     <div>
       <div className="w-full h-[280px] relative hidden lg:block">
         <div className="w-full h-full">
           <img
             src={detailsData.backdropPath}
+            alt={detailsData.primaryTitle}
             className="h-full w-full object-cover"
           />
         </div>
@@ -117,21 +155,21 @@ console.log(recommendationsData)
         <div className="relative mx-auto lg:-mt-28 lg:mx-0 w-fit min-w-60">
           <img
             src={detailsData.posterPath}
+            alt={detailsData.primaryTitle}
             className="h-80 w-60 object-cover rounded"
           />
           <button
-            onClick={() => handlePlayVideo(detailsData.trailerPath)}
+            onClick={handlePlayVideo}
             className="mt-3 w-full py-2 px-4 text-center bg-white text-black rounded font-bold text-lg hover:bg-gradient-to-l from-red-500 to-orange-500 hover:scale-105 transition-all cursor-pointer"
           >
             Play Now
           </button>
-          {/* 4. Cập nhật nút Add to MyList */}
           <button
             onClick={handleAddToList}
-            disabled={addToListMutation.isPending} // Vô hiệu hóa nút khi đang gửi request
+            disabled={addToListMutation.isPending}
             className="mt-3 w-full py-2 px-4 text-center bg-white text-black rounded font-bold text-lg hover:bg-gradient-to-l from-red-500 to-orange-500 hover:scale-105 transition-all cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {addToListMutation.isPending ? 'Adding...' : 'Add to MyList'}
+            {addToListMutation.isPending ? "Adding..." : "Add to MyList"}
           </button>
         </div>
 
@@ -140,7 +178,7 @@ console.log(recommendationsData)
             {detailsData.primaryTitle}
           </h2>
           <Divider />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <p>Genres:</p>
             {genres
               .filter((genre) => genre && genre.trim())
@@ -197,13 +235,25 @@ console.log(recommendationsData)
 
           <CastList castData={castData} />
           {!loadingAuth && (
-           <CommentSection movieId={id} currentUser={currentUser} />
+            <CommentSection movieId={id} currentUser={currentUser} />
           )}
           <Divider />
         </div>
       </div>
-          <HorizontalScrollCard data={recommendationsData} heading={"Recommendations"} />
-
+      <HorizontalScrollCard
+        data={recommendationsData}
+        heading={"Recommendations"}
+        isLoading={recommendationsLoading}
+        media_type={"movie"}
+      />
+      {movieByGenreData.map((data, index) => (
+        <HorizontalScrollCard
+          data={data}
+          heading={`More in ${genres[index]}`
+        }   
+        key={index}
+        />
+      ))}
       {playVideo && (
         <VideoPlay
           close={() => setPlayVideo(false)}

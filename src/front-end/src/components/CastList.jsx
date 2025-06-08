@@ -11,16 +11,17 @@ const CastList = ({ castData }) => {
       <h2 className="font-bold text-lg text-white">Cast :</h2>
       <div className="grid grid-cols-[repeat(auto-fit,96px)] gap-5 my-4 transition-all">
         {visibleCast.map((starCast, index) => (
-          <div key={index}>
+          <div key={index} title={starCast.character}>
             <div>
               <img
+                alt={starCast.character}
                 src={"https://image.tmdb.org/t/p/original" + starCast.profile_path}
                 className="w-24 h-24 object-cover rounded-full"
               />
             </div>
-            <p className="font-bold text-center text-sm text-neutral-400">
+            <a href={'/cast/' + starCast.id} className="font-bold text-center text-sm text-neutral-400 underline" >
               {starCast.name}
-            </p>
+            </a>
           </div>
         ))}
       </div>

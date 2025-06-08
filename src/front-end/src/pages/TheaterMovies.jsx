@@ -23,7 +23,7 @@ const TheaterMovies = () => {
 console.log("Theater Movies Data:", theaterMovies);
   return (
     <div className='py-16'>
-        <div className='container mx-auto'>
+        <div className='container mx-auto h-[470px]'>
           <h3 className='capitalize text-lg lg:text-xl font-semibold my-3'>Theater Movies</h3>
           <div className='grid grid-cols-[repeat(auto-fit,260px)] gap-6 justify-center lg:justify-start'>
               {

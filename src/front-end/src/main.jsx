@@ -17,6 +17,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import TheaterMovies from './pages/TheaterMovies.jsx';
 import DetailsTheater from './pages/DetailsTheater.jsx';
 import MyListPage from './pages/MyListPage.jsx';
+import CastDetailPage from './pages/CastDetailPage.jsx';
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
       {
         path: '/my-list',
         element: <MyListPage/>
+      },
+      {
+        path: '/cast/:id',
+        element: <CastDetailPage/>
       },
     ],
 
