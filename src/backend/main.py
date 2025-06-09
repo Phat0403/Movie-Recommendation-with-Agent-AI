@@ -5,6 +5,7 @@ from api.auth import router as auth_router
 from api.movie import router as movie_router
 from api.comment import router as comment_router
 from api.user import router as user_router
+from api.chatbot import router as chatbot_router
 from db.session import engine, Base
 
 # Create the database tables if they don't exist
@@ -31,6 +32,8 @@ app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(movie_router, prefix="/api", tags=["movies"])
 app.include_router(comment_router, prefix="/api", tags=["comments"])
 app.include_router(user_router, prefix="/api/user", tags=["user"])
+app.include_router(chatbot_router, prefix="/api/chatbot", tags=["chatbot"])
+
 
 @app.get("/")
 async def root():

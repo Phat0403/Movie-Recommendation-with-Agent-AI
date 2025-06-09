@@ -1,11 +1,6 @@
 import os
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
-from langchain.chains import RetrievalQA
-from langchain.prompts import ChatPromptTemplate
-import chromadb
-from ai.embedder import Embedder # Import lớp Embedder của bạn
-from utils.common_functions import read_yaml
 from utils.logger import get_logger
 import random
 logger = get_logger(__name__)
@@ -17,7 +12,7 @@ from db.clients import get_chroma_client
 
 client = get_chroma_client()
 # Khởi tạo mô hình Groq
-llm = ChatGroq(model_name="llama3-8b-8192", temperature=0.7) # Hoặc llama3-70b-8192
+llm = ChatGroq(model_name="llama3-8b-8192", temperature=0.6) # Hoặc llama3-70b-8192
 
 # Biến toàn cục lưu danh sách phim đã gợi ý trong session hiện tại
 seen_ids = set()
@@ -130,4 +125,5 @@ def interactive_loop():
 
 
 if __name__ == "__main__":
+    print(1)
     main()
