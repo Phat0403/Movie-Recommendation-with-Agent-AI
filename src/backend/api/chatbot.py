@@ -1,11 +1,21 @@
 from fastapi import APIRouter, HTTPException, Depends, Body
 from fastapi.responses import JSONResponse
 
-from db.clients import get_redis_client
+from db.clients import get_redis_client, get_es_client
 from services.chatbot import ChatbotService
 
-def get_chatbot_service(redis_client=Depends(get_redis_client)) -> ChatbotService:
-    return ChatbotService(redis_client=redis_client)
+def get_chatbot_service(redis_client=Depends(get_redis_client), es_client=Depends(get_es_client)):
+    """
+    Dependency to get the ChatbotService instance.
+    
+    Args:
+        redis_client (RedisClient): Redis client dependency.
+        es_client (ElasticSearchClient): ElasticSearch client dependency.
+    
+    Returns:
+        ChatbotService: An instance of ChatbotService.
+    """
+    return ChatbotService(redis_client=redis_client, es_client=es_client)
 
 router = APIRouter()
 @router.post("/init-conversation")

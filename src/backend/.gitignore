@@ -12,3 +12,4 @@ logs/
 *.zip
 chroma
 venv
+.env
