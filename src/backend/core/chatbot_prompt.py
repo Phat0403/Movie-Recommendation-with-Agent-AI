@@ -18,6 +18,9 @@ If the query is not clear and not about movies, you should return:
   "query": "No information",
   "type": "chat"
 }}
+<Constraints>
+type must be one of the following: "Search by movie name", "Search by description", "Choose a specific movie", "Normal chat"
+</Constraints>
 """
 
 QUERY_PROMPT_TEMPLATE = PromptTemplate(
@@ -62,7 +65,7 @@ CONSTRAINTS = """Your output must be in the following JSON format:
   movie: ["<movie name 1>", "<movie name 2>", "..."],
   intent: "<query type, only one of the following: 'Search by movie name', 'Search by description', 'Choose a specific movie', 'Normal chat'>",
 }}
-Just return tconst and movie name if you find inside the context, do not use your own knowledge to find the movie, only use the information provided in the context.
+Just return tconst and movie name if you find inside the context, do not use your own knowledge to find the movie, only use the information provided in the context. You can provide alternative recommendations based on the context if you can not find the movie the user are looking for, but do not use your own knowledge to find the movie, only use the information provided in the context.
 """
 
 CONSTRAINTS_SYSTEM_PLACEHOLDER = ("system", f"Constraints: {CONSTRAINTS}")
