@@ -1,3 +1,5 @@
+import numpy as np
+
 from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
 from db.redis_client import RedisClient
@@ -481,6 +483,51 @@ class MovieService:
             recommended_movies = await self.get_movies_by_list_tconst(movie_ids)
             await self.redis_client.set(f"movie_recommendations_{movie_id}", json.dumps(recommended_movies), expire=60 * 60)  # Cache for 1 hour
         return recommended_movies
+    
+    async def recommend_by_movie_list(self, movie_ids: List[str], username: str, top_k: int = 10) -> List[Dict[str, Any]]:
+        """
+        Recommend movies based on a list of movie IDs.
+
+        Args:
+            movie_ids (List[str]): A list of movie IDs to base recommendations on.
+            top_k (int): The number of recommendations to return.
+
+        Returns:
+            List[Dict[str, Any]]: A list of recommended movies.
+        """
+        top_k = top_k + min(len(movie_ids), 3)  # Increase top_k by the number of input movie IDs to avoid duplicates
+        # Check if the recommendations are already cached in Redis
+        cached_recommendations = await self.redis_client.get(f"movie_recommendations_{username}_{top_k}")
+        
+        if cached_recommendations is not None and len(cached_recommendations) > 2:
+            recommended_movies = json.loads(cached_recommendations)
+        else:
+            if not movie_ids or len(movie_ids) == 0:
+                embeddings = np.random.rand(768).tolist()  # Random embedding if no movie IDs provided
+            else:
+                # Fetch movie descriptions for the given movie IDs
+                movies = await self.get_movies_by_list_tconst(movie_ids)
+                if not movies:
+                    raise ValueError("No movies found for the provided IDs.")
+                
+                # Get all descriptions
+                descriptions = [movie["description"] for movie in movies]
+                embeddings = self.chroma_client.embed_movie(descriptions)
+                embeddings = np.array(embeddings)
+                # average the embeddings
+                embeddings = embeddings.mean(axis=0).tolist()
+            # Query the ChromaDB for recommendations
+            results = self.chroma_client.query_by_embedding(embeddings, n_results=top_k)
+            # print(f"Results from ChromaDB: {results}")
+            results_ids = results["ids"][0]
+            # Filter out the input movie IDs from the results
+            results_ids = [mov_id for mov_id in results_ids if mov_id not in movie_ids]
+            # Exclude the input movie IDs from recommendations
+            recommended_movies = await self.get_movies_by_list_tconst(results_ids)
+            # Cache the recommendations in Redis
+            await self.redis_client.set(f"movie_recommendations_{username}_{top_k}", json.dumps(recommended_movies), expire=60 * 60)
+        return recommended_movies
+
     
 async def main():
     # Example usage

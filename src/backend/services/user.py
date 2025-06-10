@@ -1,6 +1,9 @@
 from sqlalchemy.orm import Session
 from models.favorite import Favorite
 from db.crud_comment import CommentController
+from db.mongo_client import MongoClient
+from core.embedder import Embedder
+
 
 class UserService:
     def __init__(self, db: Session):
@@ -98,21 +101,15 @@ class UserService:
             "comments": [{comment.movie_id: comment.comment} for comment in comment_list]
         }
         return user_info
+
     
-    def recommend_movies(self, username: str) -> list[str]:
-        """
-        Recommend movies to a user based on their preferences or history.
-        
-        Args:
-            username (str): The ID of the user.
-        
-        Returns:
-            list[str]: A list of recommended movie IDs.
-        """
-        try:
-            # Logic to recommend movies based on user preferences or history
-            pass
-        except Exception as e:
-            print(f"Error recommending movies: {e}")
-            return []
-        return []
+if __name__ == "__main__":
+    from db.clients import get_db
+    db = next(get_db())
+    user_service = UserService(db)
+    # Example usage
+    print(user_service.add_favorite_movie("test_user", "tt1234567"))
+    print(user_service.get_favorite_movies("test_user"))
+    print(user_service.remove_favorite_movie("test_user", "tt1234567"))
+    print(user_service.get_user_info("test_user"))
+    print(user_service.recommend_movies("test_user"))

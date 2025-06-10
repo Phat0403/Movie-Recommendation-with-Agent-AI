@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body
 from fastapi.responses import JSONResponse
+from typing import List
 
 from db.mongo_client import MongoClient
 from db.es import ElasticSearchClient
@@ -160,8 +161,26 @@ async def recommend_movies(movie_id: str, size: int = 10):
     except Exception as e:
         logging.error(f"Error recommending movies: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
+    
+@router.post("/movies/recommend-by-user/{username}", response_model=MovieList)
+async def recommend_movies_by_user(username: str,
+                                   size: int = 20,
+                                   movie_list: List[str] = Body(..., embed=True, description="List of favorite movie IDs")):
+    """
+    Recommend movies based on a user's favorite movies.
+    """
+    try:
+        logging.warning(f"Recommending movies for user: {username} with movie list: {movie_list}")
+        recommendations = await movie_service.recommend_by_movie_list(
+            username=username,
+            movie_ids=movie_list,
+            top_k=size
+        )
+        logging.warning(f"Recommendations for user {username}: {recommendations}")
+        return JSONResponse(content=recommendations, status_code=200)
+    except Exception as e:
+        logging.error(f"Error recommending movies by user: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/showtimes")
 async def get_showtimes():

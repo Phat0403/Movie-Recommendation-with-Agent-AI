@@ -28,6 +28,23 @@ class ChromaDBClient:
         )
         return results
     
+    def query_by_embedding(self, embedding_vector, n_results: int = 10):
+        """
+        Query the ChromaDB collection with an embedding vector.
+        """
+        results = self.collection.query(
+            query_embeddings=[embedding_vector],
+            n_results=n_results
+        )
+        return results
+    
+    def embed_movie(self, movies_description):
+        """
+        Embed movie descriptions into the vector.
+        """
+        return self.embedding_function(movies_description)
+        
+    
 if __name__ == "__main__":
     
     chroma_client = ChromaDBClient()
