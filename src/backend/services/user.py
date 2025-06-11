@@ -1,14 +1,15 @@
 from sqlalchemy.orm import Session
 from models.favorite import Favorite
 from db.crud_comment import CommentController
-from db.mongo_client import MongoClient
-from core.embedder import Embedder
+from db.crud_user import UserController
+from models.user import User
 
 
 class UserService:
     def __init__(self, db: Session):
         self.db = db
         self.comment_controller = CommentController(db)
+        self.user_controller = UserController(db)
 
     def add_favorite_movie(self, username: str, movie_id: str) -> bool:
         """
@@ -93,10 +94,12 @@ class UserService:
         Returns:
             dict: A dictionary containing user information, or an empty dictionary if not found.
         """
+        user = self.user_controller.get(User,username=username)
         favorite_movies = self.get_favorite_movies(username)
         comment_list = self.comment_controller.get_comments_by_username(username)
         user_info = {
             "username": username,
+            "email": user.email if user else None,
             "favorite_movies": favorite_movies,
             "comments": [{comment.movie_id: comment.comment} for comment in comment_list]
         }

@@ -9,7 +9,7 @@ import { href } from "react-router-dom";
 export const navigation = [
     { label: "Movie Shows", href: "/explore", icon: <PiTelevisionFill/> },
     { label: "Theater Movies", href: "/theater-movies", icon: <BiSolidMoviePlay /> },
-    { label: "My List", href: "/my-list", icon: <FaListAlt /> },
+ 
   ];
 
 export const mobileNavigation = [
