@@ -14,7 +14,7 @@ from config.db_config import REDIS_URL
 
 settings = Settings()
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
+    model="gemini-2.0-flash",
     temperature=0.5,
     max_output_tokens=1024,
     api_key=settings.GOOGLE_API_KEY
@@ -92,11 +92,18 @@ async def chatbot_response(user_query: str, es_client: ElasticSearchClient, max_
     Retrieve movie recommendations based on user query and history.
     Uses ChromaDB to find relevant movies and LLM to generate recommendations.
     """
+    history = get_chat_history(session_id)
+    history_messages = history.messages
+    for message in history_messages:
+        print(f"History message: {message}")
     query_chain = QUERY_PROMPT_TEMPLATE | llm | JsonOutputParser()
-    query_intent = query_chain.invoke({"query": user_query})
+    query_intent = query_chain.invoke({"query": user_query,
+                                       "history": history},)
     query_type = query_intent.get("type", "chat")
     query_type = query_type.lower().strip()
     query_text = query_intent.get("query", "No information")
+    print(f"Query type: {query_type}")
+    print(f"Query text: {query_text}")
     if query_text == "No information":
         return {
             "message": "Sorry, I am just a movie recommendation assistant, I cannot understand and answer your question.",
@@ -113,8 +120,6 @@ async def chatbot_response(user_query: str, es_client: ElasticSearchClient, max_
         history_messages_key="history"
     )
     chain_response = chat_chain_with_history | JsonOutputParser()
-    print(f"Query type: {query_type}")
-    print(f"Query text: {query_text}")
     if query_type == "search by movie name":
         movie_name = query_text.split(": ")[1] if ": " in query_text else query_text
         texts = await find_movie_by_name(movie_name, es_client, max_suggestions)
@@ -127,9 +132,7 @@ async def chatbot_response(user_query: str, es_client: ElasticSearchClient, max_
             }
         context = texts
     elif query_type == "search by description":
-        print(f"Query text: {query_text}")
         context = find_movie_recommendations(query_text, max_suggestions)
-        print(f"Context: {context}")
     elif query_type == "choose a movie":
         context = "Choose the movie that the user is looking for from the list of movies in the history. Return the tconst as well as the movie name of the movie that the user is looking for."
     else:  # Normal chat
@@ -140,6 +143,7 @@ async def chatbot_response(user_query: str, es_client: ElasticSearchClient, max_
          "context": context}, 
         config = {"configurable": {"session_id": session_id} }
     )
+
     return {
         "message": response.get("message", ""),
         "tconsts": response.get("tconsts", []),
