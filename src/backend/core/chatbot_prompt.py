@@ -62,7 +62,7 @@ CONSTRAINTS = """Your output must be in the following JSON format:
   intent: "<query type, only one of the following: 'Search by movie name', 'Search by description', 'Choose a specific movie', 'Normal chat'>",
 }}
 <Constraints>
-You must return at least an intent.
+You must return at least an intent. For choose a specific movie, you must return the tconst and movie name of the movie that the user is looking for. For search by movie name, you must return the tconst and movie name of the movie that the user is looking for. For search by description, you must return a list of tconsts and movie names that match the description. If you do not find any movies that match the request, you can say you can not find the movie the user are looking for but can suggest some movies that are similar to the request.
 If the query type is just normal chat, you should return an empty list for tconsts and movie.
 Just return tconst and movie name if you find inside the history or context, do not use your own knowledge to find the movie, only use the information provided in the history and context. You can provide alternative recommendations based on the context and history if you can not find the movie the user are looking for, but do not use your own knowledge to find the movie, only use the information provided in the context and history.
 </Constraints>
