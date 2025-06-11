@@ -24,7 +24,7 @@ class EmbeddingFunction(chromadb.EmbeddingFunction):
 class MovieEmbedder:
     def __init__(self):
         logger.info("Initializing MovieEmbedder")
-        self.movie_embedding_config = read_yaml("config/movie_embedding_configs.yaml")
+        self.movie_embedding_config = read_yaml("config/movie_embedding_config.yaml")
         self.data_path = self.movie_embedding_config['data_path']
         self.model = self.movie_embedding_config['model']
         self.embedder = Embedder(self.model)
@@ -37,7 +37,7 @@ class MovieEmbedder:
         """
         # Placeholder for loading data
         logger.info("Loading movie data")
-        movies_descriptions = open(self.data_path, 'r').readlines()
+        movies_descriptions = open(self.data_path, 'r', encoding= 'UTF-8').readlines()
         return movies_descriptions
     
     def get_chroma_collection_client(self):

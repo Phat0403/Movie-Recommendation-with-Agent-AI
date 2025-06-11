@@ -3,3 +3,4 @@
 */_SUCCESS
 */data/*.csv
 src/.env
+src/venv
