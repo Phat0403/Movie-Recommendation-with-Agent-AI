@@ -14,7 +14,7 @@ from config.db_config import REDIS_URL
 
 settings = Settings()
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash-preview-05-20",
+    model="gemini-2.0-flash",
     temperature=0.5,
     max_output_tokens=1024,
     api_key=settings.GOOGLE_API_KEY
