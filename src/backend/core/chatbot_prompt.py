@@ -54,19 +54,19 @@ RECOMMEND_PROMPT_TEMPLATE = PromptTemplate(
     template=RECOMMEND_PROMPT
 )
 
-CONSTRAINTS = """Your output must be in the following JSON format:
+CONSTRAINTS = """
+- The tconst for choose a specific movie, search by movie name, and search by description should only based from context and history, do not use your own knowledge to find the movie.
+- Your natural language should always contain tconsts along with movie names for future reference.
+- You must return at least an intent. For choose a specific movie, you must return the tconst and movie name of the movie that the user is looking for. For search by movie name, you must return the tconst and movie name of the movie that the user is looking for. For search by description, you must return a list of tconsts and movie names that match the description. If you do not find any movies that match the request, you can say you can not find the movie the user are looking for but can suggest some movies that are similar to the request.
+- If the query type is just normal chat, you should return an empty list for tconsts and movie.
+- Just return precise tconst and movie name if you find inside the history or context, do not use your own knowledge to find the movie, only use the information provided in the history and context. You can provide alternative recommendations based on the context and history if you can not find the movie the user are looking for, but do not use your own knowledge to find the movie, only use the information provided in the context and history.
+- Your output must be in the following JSON format:
 {{
   message: "<your natural language recommendation message with descrtiption of the each movies>",
   tconsts: ["<tconst1>", "<tconst2>", "..."],
   movie: ["<movie name 1>", "<movie name 2>", "..."],
   intent: "<query type, only one of the following: 'Search by movie name', 'Search by description', 'Choose a specific movie', 'Normal chat'>",
 }}
-<Constraints>
-Your natural language should always contain tconsts along with movie names for future reference.
-You must return at least an intent. For choose a specific movie, you must return the tconst and movie name of the movie that the user is looking for. For search by movie name, you must return the tconst and movie name of the movie that the user is looking for. For search by description, you must return a list of tconsts and movie names that match the description. If you do not find any movies that match the request, you can say you can not find the movie the user are looking for but can suggest some movies that are similar to the request.
-If the query type is just normal chat, you should return an empty list for tconsts and movie.
-Just return precise tconst and movie name if you find inside the history or context, do not use your own knowledge to find the movie, only use the information provided in the history and context. You can provide alternative recommendations based on the context and history if you can not find the movie the user are looking for, but do not use your own knowledge to find the movie, only use the information provided in the context and history.
-</Constraints>
 """
 
 CONSTRAINTS_SYSTEM_PLACEHOLDER = ("system", f"Constraints: {CONSTRAINTS}")

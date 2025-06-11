@@ -14,7 +14,7 @@ from config.db_config import REDIS_URL
 
 settings = Settings()
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash-preview-05-20",
     temperature=0.5,
     max_output_tokens=1024,
     api_key=settings.GOOGLE_API_KEY
@@ -104,14 +104,6 @@ async def chatbot_response(user_query: str, es_client: ElasticSearchClient, max_
     query_text = query_intent.get("query", "No information")
     print(f"Query type: {query_type}")
     print(f"Query text: {query_text}")
-    if query_text == "No information":
-        return {
-            "message": "Sorry, I am just a movie recommendation assistant, I cannot understand and answer your question.",
-            "tconsts": [],
-            "movie": [],
-            "type": query_type
-        }
-    
     chain = CHAT_PROMPT | llm 
     chat_chain_with_history = RunnableWithMessageHistory(
         chain,
