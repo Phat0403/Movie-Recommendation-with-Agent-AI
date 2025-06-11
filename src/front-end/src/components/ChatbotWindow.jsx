@@ -104,8 +104,9 @@ useEffect(() => {
         navigate('/recommendations', {
           state: { data: response.tconsts }});
       }
-      else if (response.intent === 'choose a specific movie') {
-        navigate(`/movie/${response.tconsts[0]}`);
+      else if (response.intent === 'search by movie name') {
+        navigate('/recommendations', {
+          state: { data: response.tconsts }});
       }
       // Optional: update conversationId if it can change per message, though unlikely for this API structure
       // setConversationId(response.conversation_id); 

@@ -19,6 +19,7 @@ import DetailsTheater from './pages/DetailsTheater.jsx';
 import MyListPage from './pages/MyListPage.jsx';
 import CastDetailPage from './pages/CastDetailPage.jsx';
 import RecommendationPage from './pages/RecommendationPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,10 @@ const router = createBrowserRouter([
       {
         path: '/recommendations',
         element: <RecommendationPage/>
+      },
+      {
+        path: '/profile',
+        element: <ProfilePage/>
       },
     ],
 
