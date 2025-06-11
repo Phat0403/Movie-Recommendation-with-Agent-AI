@@ -4,7 +4,7 @@ import GoogleIcon from '../components/icons/GoogleIcon'; // Assuming GoogleIcon 
 import LockIcon from '../components/icons/LockIcon';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 // FilmReelIcon component as provided
@@ -14,14 +14,15 @@ const FilmReelIcon = (props) => (
   </svg>
 );
 
-const LoginPage = () => {
+const LoginPage = ({to=''}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const auth = useAuth();
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const from = location.state?.to || '/';
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -64,7 +65,8 @@ const LoginPage = () => {
   };
    useEffect(() => {
     if (auth.currentUser) {
-      navigate('/'); // Or to a dashboard, or previous intended page
+      navigate(`/`); // Or to a dashboard, or previous intended page
+      console.log('User is already logged in, redirecting to:', from);
     }
   }, [auth.currentUser, navigate]);
 

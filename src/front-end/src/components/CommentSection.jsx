@@ -217,7 +217,7 @@ const CommentSection = ({ movieId, currentUser }) => {
             You need to be logged in to post a comment.
           </p>
           <button
-            onClick={() => navigate('/login')} // Assuming you have a /login route
+            onClick={() => navigate('/login', {state: {to: `/movie/${movieId}`}})} // Assuming you have a /login route
             className="mt-2 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
           >
             Login
