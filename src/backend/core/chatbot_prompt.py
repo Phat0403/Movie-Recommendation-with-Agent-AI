@@ -1,22 +1,32 @@
-# from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceholder
 from langchain.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceholder
+
+# -------- QUERY PROMPT --------
 QUERY_PROMPT = """
 Your chat history: {history}
-You are a friendly and helpful movie recommendation assistant. Based on the user request, you will find the intend of the user and convert the query into four types of query:
-1. Choose a movie: "Choose a movie: <movie_name>". If the user want to watch, choose, see a specific name and you have the information about that moive in history or context, you will return the movie name and tconst of the movie that the user is looking for. If you do not have the information about that movie, you can say you can not find the movie the user are looking for but can suggest some movies that are similar to the request.
-2. Search by movie name: "Movie name: <movie_name>". Only if the user is looking for a specific movie by its name and you have the information about that movie in history or context, you will return the movie name and tconst of the movie that the user is looking for. If you do not have the information about that movie, return other types of query.
-3. Search by description: "Description: <description>". 
-4. Normal chat: "Chat: <query>"
+You are a friendly and helpful movie recommendation assistant. Based on the user request, determine the intent and transform the query into one of the following types:
+
+1. Choose a specific movie → Format: "Choose a movie: <movie_name>"  
+2. Search by movie name → Format: "Movie name: <movie_name>"  
+3. Search by description → Format: "Description: <description>"  
+4. Normal chat → Format: "Chat: <query>"  
+
+Return only a JSON object (no markdown, no explanations):
+
+{{
+  "query": "<your query text>",
+  "type": "<one of: 'Search by movie name', 'Search by description', 'Choose a specific movie', 'Normal chat'>"
+}}
+Do not say anything else.
+Do not include explanation.
+Return ONLY a valid JSON object in the specified format.
+Type should be one of the following:
+- "Search by movie name"
+- "Search by description"
+- "Choose a specific movie"
+- "Normal chat"
+
 User request:
 {query}
-You will return in the following format:
-{{
-  "query": "<your query text>"
-  "type": "<query type>"
-}}
-<Constraints>
-type must be one of the following: "Search by movie name", "Search by description", "Choose a specific movie", "Normal chat"
-</Constraints>
 """
 
 QUERY_PROMPT_TEMPLATE = PromptTemplate(
@@ -24,15 +34,17 @@ QUERY_PROMPT_TEMPLATE = PromptTemplate(
     template=QUERY_PROMPT
 )
 
+# -------- RECOMMEND PROMPT --------
 RECOMMEND_PROMPT = """
 Previously recommended movies:
 {history}
 
-You are a friendly and helpful movie recommendation assistant. Based on the movie information provided below and the user's request, suggest suitable movies for them
+You are a friendly and helpful movie recommendation assistant. Based on the movie information provided below and the user's request, suggest suitable movies.
 
-Note:
-- If multiple movies match the request, prioritize recommending ones that have not been mentioned in history to ensure diversity if possible.
-- If you do not see any movies that match the request, you can say you can not find the movie the user are looking for but can suggest some movies that are similar to the request.
+Guidelines:
+- Prioritize movies not yet mentioned in history.
+- Only use info from context and history. Do not invent.
+- If no match, suggest similar ones from context.
 
 Relevant movie information:
 {context}
@@ -40,12 +52,13 @@ Relevant movie information:
 User request:
 {query}
 
-Your output must be in the following JSON format:
+Return only a valid JSON object (no markdown):
+
 {{
-  message: "<your natural language recommendation message with descrtiption of the each movies>",
-  tconsts: ["<tconst1>", "<tconst2>", "..."],
-  movie: ["<movie name 1>", "<movie name 2>", "..."],
-  history: "<your history of recommended movies that you have metioned in the movie list mix with old history, separated by commas, only include names of movies that you have metioned in the output>"
+  "message": "<natural language recommendation with descriptions>",
+  "tconsts": ["<tconst1>", "<tconst2>", "..."],
+  "movie": ["<movie name 1>", "<movie name 2>", "..."],
+  "history": "<comma-separated names of movies you mentioned>"
 }}
 """
 
@@ -54,27 +67,64 @@ RECOMMEND_PROMPT_TEMPLATE = PromptTemplate(
     template=RECOMMEND_PROMPT
 )
 
+# -------- CONSTRAINTS for CHAT_PROMPT --------
 CONSTRAINTS = """
-- The tconst for choose a specific movie, search by movie name, and search by description should only based from context and history, do not use your own knowledge to find the movie.
-- Your natural language should always contain tconsts along with movie names for future reference.
-- You must return at least an intent. For choose a specific movie, you must return the tconst and movie name of the movie that the user is looking for. For search by movie name, you must return the tconst and movie name of the movie that the user is looking for. For search by description, you must return a list of tconsts and movie names that match the description. If you do not find any movies that match the request, you can say you can not find the movie the user are looking for but can suggest some movies that are similar to the request.
-- If the query type is just normal chat, you should return an empty list for tconsts and movie.
-- Just return precise tconst and movie name if you find inside the history or context, do not use your own knowledge to find the movie, only use the information provided in the history and context. You can provide alternative recommendations based on the context and history if you can not find the movie the user are looking for, but do not use your own knowledge to find the movie, only use the information provided in the context and history.
-- Your output must be in the following JSON format:
+- Use only context and history to extract or recommend movie information.
+- Return one intent: 'Search by movie name', 'Search by description', 'Choose a specific movie', 'Normal chat'.
+- Only return a valid JSON object. Do NOT use markdown code blocks like ```json.
+- Do NOT include explanations or additional text.
+
+Expected format:
 {{
-  message: "<your natural language recommendation message with descrtiption of the each movies>",
-  tconsts: ["<tconst1>", "<tconst2>", "..."],
-  movie: ["<movie name 1>", "<movie name 2>", "..."],
-  intent: "<query type, only one of the following: 'Search by movie name', 'Search by description', 'Choose a specific movie', 'Normal chat'>",
+  "message": "<recommendation message>",
+  "tconsts": ["<tconst1>", "..."],
+  "movie": ["<movie name>", "..."],
+  "intent": "<query type>"
 }}
 """
-
-CONSTRAINTS_SYSTEM_PLACEHOLDER = ("system", f"Constraints: {CONSTRAINTS}")
 
 CHAT_PROMPT = ChatPromptTemplate.from_messages([
     ("system", "You are a helpful movie assistant that uses tools to find information."),
     MessagesPlaceholder(variable_name="history"),
     ("system", "Relevant information: {context}"),
-    CONSTRAINTS_SYSTEM_PLACEHOLDER,
-    ("human", "{query}")   
+    ("system", f"Constraints: {CONSTRAINTS}"),
+    ("human", "{query}")
 ])
+
+# -------- Example Chain Usage --------
+# llm = ChatOpenAI(model_name="gpt-4", temperature=0)
+
+# query_chain = LLMChain(llm=llm, prompt=QUERY_PROMPT_TEMPLATE)
+# recommend_chain = LLMChain(llm=llm, prompt=RECOMMEND_PROMPT_TEMPLATE)
+
+# # -------- Helper to clean any markdown-blocked JSON --------
+# def clean_json_output(output: str):
+#     output = output.strip()
+#     if output.startswith("```json"):
+#         output = re.sub(r"```json\s*([\s\S]+?)\s*```", r"\1", output.strip())
+#     return json.loads(output)
+
+# # -------- Example call --------
+# if __name__ == "__main__":
+#     history = "Previously: Not Friends_, Long Story Short_"
+#     query = "I'm looking for a movie about deep friendship"
+#     context = """
+#     Not Friends_ [tt28937890]: A group of high school students who dream of making films set out to make a short film...
+#     Long Story Short_ [tt33350035]: A group of close friends celebrate parties over an extended period of time...
+#     """
+
+#     # Step 1: Identify query type
+#     query_result = query_chain.run({"query": query, "history": history})
+#     print("Query Result (raw):", query_result)
+#     parsed_query = clean_json_output(query_result)
+#     print("Parsed:", parsed_query)
+
+#     # Step 2: Recommend movie
+#     recommend_result = recommend_chain.run({
+#         "query": query,
+#         "context": context,
+#         "history": history
+#     })
+#     print("Recommend Result (raw):", recommend_result)
+#     parsed_recommend = clean_json_output(recommend_result)
+#     print("Parsed:", parsed_recommend)
