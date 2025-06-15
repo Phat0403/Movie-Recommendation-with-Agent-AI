@@ -176,7 +176,6 @@ async def recommend_movies_by_user(username: str,
             movie_ids=movie_list,
             top_k=size
         )
-        logging.warning(f"Recommendations for user {username}: {recommendations}")
         return JSONResponse(content=recommendations, status_code=200)
     except Exception as e:
         logging.error(f"Error recommending movies by user: {e}")
