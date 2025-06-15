@@ -526,7 +526,7 @@ class MovieService:
             # Exclude the input movie IDs from recommendations
             recommended_movies = await self.get_movies_by_list_tconst(results_ids)
             # Cache the recommendations in Redis
-            await self.redis_client.set(f"movie_recommendations_{username}_{top_k}_{len(movie_ids)}"), json.dumps(recommended_movies), expire=60 * 60)
+            await self.redis_client.set(f"movie_recommendations_{username}_{top_k}_{len(movie_ids)}", json.dumps(recommended_movies), expire=60 * 60)
         return recommended_movies
 
     
