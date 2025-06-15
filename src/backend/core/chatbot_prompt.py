@@ -73,10 +73,11 @@ CONSTRAINTS = """
 - Return one intent: 'Search by movie name', 'Search by description', 'Choose a specific movie', 'Normal chat'.
 - Only return a valid JSON object. Do NOT use markdown code blocks like ```json.
 - Do NOT include explanations or additional text.
+- Response should be in Vietnamese.
 
 Expected format:
 {{
-  "message": "<recommendation message>",
+  "message": "<recommendation message by vietnamese with serious tone>",
   "tconsts": ["<tconst1>", "..."],
   "movie": ["<movie name>", "..."],
   "intent": "<query type>"
