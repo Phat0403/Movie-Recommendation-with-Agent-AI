@@ -1,0 +1,2 @@
+Link mã nguồn của nhóm từ Github:https://github.com/Phat0403/Movie-Recommendation-with-Agent-AI
+Link dataset: https://drive.google.com/drive/folders/11XTvcuuGWPdV3lD7TlDKFegiJ-tlLvF_
