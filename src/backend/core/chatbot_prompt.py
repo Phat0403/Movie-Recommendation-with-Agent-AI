@@ -2,30 +2,33 @@ from langchain.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceh
 
 # -------- QUERY PROMPT --------
 QUERY_PROMPT = """
-Your chat history: {history}
-You are a friendly and helpful movie recommendation assistant. Based on the user request, determine the intent and transform the query into one of the following types:
+Ngữ cảnh hội thoại gần đây: {history}
 
-1. Choose a specific movie → Format: "Choose a movie: <movie_name>"  
-2. Search by movie name → Format: "Movie name: <movie_name>"  
-3. Search by description → Format: "Description: <description>"  
-4. Normal chat → Format: "Chat: <query>"  
+Bạn là trợ lý gợi ý phim thông minh. Dựa trên ngữ cảnh hội thoại gần đây và yêu cầu của người dùng, hãy xác định ý định và chuyển đổi truy vấn thành một trong các loại sau:
 
-Return only a JSON object (no markdown, no explanations):
+1. **Chọn phim cụ thể** → Format: "Choose a movie: <tên_phim>"  
+2. **Tìm kiếm theo tên phim** → Format: "Movie name: <tên_phim>"  
+3. **Tìm kiếm theo mô tả** → Format: "Description: <mô_tả>"  
+4. **Hỏi về nội dung phim** → Format: "Movie content: <tên_phim>"
+5. **Trò chuyện thường** → Format: "Chat: <câu_hỏi>"  
+
+**Hướng dẫn phân loại:**
+- Nếu người dùng hỏi về nội dung, cốt truyện, diễn viên của một phim cụ thể → "Movie content"
+- Nếu người dùng muốn chọn một phim từ danh sách đã thảo luận → "Choose a movie"  
+- Nếu người dùng tìm phim theo tên cụ thể → "Movie name"
+- Nếu người dùng mô tả thể loại, tâm trạng, chủ đề → "Description"
+- Các câu hỏi khác → "Chat"
+
+**Quan trọng:** Hãy sử dụng ngữ cảnh hội thoại gần đây để hiểu rõ hơn ý định của người dùng.
+
+Trả về CHÍNH XÁC một JSON object (không có markdown, không có giải thích):
 
 {{
-  "query": "<your query text>",
-  "type": "<one of: 'Search by movie name', 'Search by description', 'Choose a specific movie', 'Normal chat'>"
+  "query": "<văn bản truy vấn của bạn>",
+  "type": "<một trong: 'Search by movie name', 'Search by description', 'Choose a movie', 'Movie content', 'Normal chat'>"
 }}
-Do not say anything else.
-Do not include explanation.
-Return ONLY a valid JSON object in the specified format.
-Type should be one of the following:
-- "Search by movie name"
-- "Search by description"
-- "Choose a specific movie"
-- "Normal chat"
 
-User request:
+Yêu cầu của người dùng:
 {query}
 """
 
@@ -69,28 +72,57 @@ RECOMMEND_PROMPT_TEMPLATE = PromptTemplate(
 
 # -------- CONSTRAINTS for CHAT_PROMPT --------
 CONSTRAINTS = """
-- Use only context and history to extract or recommend movie information.
-- Return one intent: 'Search by movie name', 'Search by description', 'Choose a specific movie', 'Normal chat'.
-- Only return a valid JSON object. Do NOT use markdown code blocks like ```json.
-- Do NOT include explanations or additional text.
-- Response should be in Vietnamese.
+- Sử dụng CHÍNH XÁC thông tin từ context và lịch sử hội thoại để trích xuất hoặc gợi ý phim.
+- Khi không có thông tin trong database, sử dụng kiến thức chung về phim để trả lời.
+- Ưu tiên ngữ cảnh hội thoại gần đây để hiểu rõ ý định người dùng.
+- Trả lời bằng tiếng Việt với tông điệu thân thiện và hữu ích.
+- CHỈ trả về JSON object hợp lệ. KHÔNG sử dụng markdown code blocks như ```json.
+- KHÔNG bao gồm giải thích hoặc văn bản bổ sung.
 
-Expected format:
+Format mong đợi:
 {{
-  "message": "<recommendation message by vietnamese with serious tone>",
+  "message": "<tin nhắn gợi ý bằng tiếng Việt với tông điệu thân thiện>",
   "tconsts": ["<tconst1>", "..."],
-  "movie": ["<movie name>", "..."],
-  "intent": "<query type>"
+  "movie": ["<tên phim>", "..."],
+  "intent": "<loại truy vấn>"
 }}
 """
 
 CHAT_PROMPT = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful movie assistant that uses tools to find information."),
+    ("system", "Bạn là trợ lý thông minh chuyên về phim ảnh, sử dụng các công cụ để tìm kiếm thông tin và hỗ trợ người dùng."),
     MessagesPlaceholder(variable_name="history"),
-    ("system", "Relevant information: {context}"),
-    ("system", f"Constraints: {CONSTRAINTS}"),
+    ("system", "Ngữ cảnh hội thoại gần đây: {recent_context}"),
+    ("system", "Thông tin liên quan: {context}"),
+    ("system", f"Hướng dẫn: {CONSTRAINTS}"),
     ("human", "{query}")
 ])
+
+# -------- NEW: Movie Content Prompt --------
+MOVIE_CONTENT_PROMPT = """
+Người dùng hỏi về nội dung phim: {movie_name}
+Câu hỏi cụ thể: {user_query}
+Ngữ cảnh hội thoại: {recent_context}
+
+Thông tin có sẵn từ database:
+{database_info}
+
+Hãy trả lời câu hỏi của người dùng về phim này. Nếu thông tin từ database không đủ, 
+hãy sử dụng kiến thức chung về phim để bổ sung thông tin hữu ích.
+
+Bao gồm các thông tin như:
+- Nội dung/cốt truyện chính
+- Diễn viên và đạo diễn
+- Thể loại và năm phát hành  
+- Đánh giá hoặc điểm đặc biệt
+- Thông tin liên quan đến câu hỏi cụ thể
+
+Trả lời bằng tiếng Việt, tự nhiên và thân thiện.
+"""
+
+MOVIE_CONTENT_TEMPLATE = PromptTemplate(
+    input_variables=["movie_name", "user_query", "recent_context", "database_info"],
+    template=MOVIE_CONTENT_PROMPT
+)
 
 # -------- Example Chain Usage --------
 # llm = ChatOpenAI(model_name="gpt-4", temperature=0)

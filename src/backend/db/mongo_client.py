@@ -197,13 +197,15 @@ def create_mongo_client(connection_string: str, database_name: str) -> MongoClie
     
     return mongo_client
 
+
 if __name__ == "__main__":
     import asyncio
     from config.db_config import MONGO_URI, MONGO_DB_NAME
 
     async def test_connection():
+        MONGO_URI = "mongodb://root:example@localhost:27017/?authSource=admin"
         mongo_client = create_mongo_client(MONGO_URI, MONGO_DB_NAME)
-        await mongo_client.connect()
+        mongo_client.connect()
         print("Connected client:", mongo_client.client)
         print("Database name:", mongo_client.db.name)
         print("Collection names:", await mongo_client.db.list_collection_names())
