@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>input_Theater Movies_bg-transparent px-4 py_f85763_1_2_3_4_5_6_7_8_9</name>
+   <tag></tag>
+   <elementGuidId>5a2738c7-0c30-4052-a2ce-2a358337089b</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>CSS</key>
+         <value></value>
+      </entry>
+      <entry>
+         <key>XPATH</key>
+         <value>//input[@value='Spider-ma']</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>internal:attr=[placeholder=&quot;Search here...&quot;i]</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>input</value>
+      <webElementGuid>4b1aba74-55b3-4239-b41e-0f18791aa053</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>placeholder</name>
+      <type>Main</type>
+      <value>Search here...</value>
+      <webElementGuid>d824de95-8525-40fc-af8c-2c2872cd8767</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>bg-transparent px-4 py-1 border-none outline-none hidden lg:block text-white placeholder-neutral-400 text-sm</value>
+      <webElementGuid>a206f595-fcf4-4ffc-b4dd-7190bf853a6a</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>type</name>
+      <type>Main</type>
+      <value>text</value>
+      <webElementGuid>d6b06e4a-0c97-48ed-aa04-2d23f3ba24d6</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>value</name>
+      <type>Main</type>
+      <value>Spider-ma</value>
+      <webElementGuid>e0b46453-a9a0-4de5-b288-b0fe94a3a6ad</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>id(&quot;root&quot;)/main[@class=&quot;pb-14 lg:pb-0&quot;]/header[@class=&quot;fixed top-0 w-full h-16 bg-black opacity-75 z-40&quot;]/div[@class=&quot;container mx-auto px-3 flex items-center h-full&quot;]/div[@class=&quot;ml-auto flex items-center gap-5&quot;]/form[@class=&quot;flex items-center gap-2&quot;]/input[@class=&quot;bg-transparent px-4 py-1 border-none outline-none hidden lg:block text-white placeholder-neutral-400 text-sm&quot;]</value>
+      <webElementGuid>b8de8042-fb47-4601-ab60-a088f483acea</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:attributes</name>
+      <type>Main</type>
+      <value>//input[@value='Spider-ma']</value>
+      <webElementGuid>17118a98-576e-46ad-90db-2f03d8207bab</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:idRelative</name>
+      <type>Main</type>
+      <value>//div[@id='root']/main/header/div/div/form/input</value>
+      <webElementGuid>e9d8a970-6c46-42e4-8e5b-89e30530a94f</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:position</name>
+      <type>Main</type>
+      <value>//input</value>
+      <webElementGuid>b2eb4518-ca8b-4f4f-816e-5f196d79a99b</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//input[@placeholder = 'Search here...' and @type = 'text']</value>
+      <webElementGuid>5e3d75a3-312a-4fc4-bcea-e4af32df2a49</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>

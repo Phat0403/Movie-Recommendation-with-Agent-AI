@@ -34,7 +34,7 @@ const RecommendationPage = () => {
     .map((query) => query.data);
   console.log("Movies List:", moviesList); // Log the movies list to verify it's being fetched correctly
   return (
-    <div className="py-16 h-full">
+    <div className="py-16 h-screen">
       <div className="container mx-auto">
        
 

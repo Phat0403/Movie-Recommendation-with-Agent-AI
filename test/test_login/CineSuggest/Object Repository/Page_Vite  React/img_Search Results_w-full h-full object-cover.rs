@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>img_Search Results_w-full h-full object-cover</name>
+   <tag></tag>
+   <elementGuidId>b17d717f-916c-416e-ab3e-17bb81d73e9a</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>CSS</key>
+         <value>img.w-full.h-full.object-cover</value>
+      </entry>
+      <entry>
+         <key>XPATH</key>
+         <value>//div[@id='root']/main/div/div/div/div/div/a/img</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>internal:role=link[name=&quot;Spider-Man: Across the Spider-Verse Spider-Man: Across the Spider-Verse June 15th 2025 Rating: 8.5&quot;i]</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>img</value>
+      <webElementGuid>de6f3592-2754-4ed4-9067-858a51c38d24</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>alt</name>
+      <type>Main</type>
+      <value>Spider-Man: Across the Spider-Verse</value>
+      <webElementGuid>dd918944-520f-4780-8c4d-011d3f6e6f26</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>w-full h-full object-cover</value>
+      <webElementGuid>8a3aa3c2-8ce3-42e3-8af4-01acc47b3fc7</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>src</name>
+      <type>Main</type>
+      <value>https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg</value>
+      <webElementGuid>9670eece-c55f-488f-b34e-9e0821d03f3f</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>id(&quot;root&quot;)/main[@class=&quot;pb-14 lg:pb-0&quot;]/div[1]/div[@class=&quot;py-16 h-screen&quot;]/div[@class=&quot;container mx-auto&quot;]/div[@class=&quot;grid grid-cols-[repeat(auto-fit,260px)] gap-6 justify-center lg:justify-start&quot;]/div[@class=&quot;w-full min-w-[260px] max-w-[260px] h-80 rounded relative group transition-all hover:scale-105&quot;]/a[@class=&quot;w-full h-full block overflow-hidden rounded cursor-pointer&quot;]/img[@class=&quot;w-full h-full object-cover&quot;]</value>
+      <webElementGuid>63fc5bc2-fed6-4cb5-b68e-9ddfeaa0be19</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:idRelative</name>
+      <type>Main</type>
+      <value>//div[@id='root']/main/div/div/div/div/div/a/img</value>
+      <webElementGuid>2c334b1a-074d-401f-bdc0-74183cdc1556</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:img</name>
+      <type>Main</type>
+      <value>//img[@alt='Spider-Man: Across the Spider-Verse']</value>
+      <webElementGuid>cffc3f1b-cbeb-4f27-9f8d-e44195f16109</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:position</name>
+      <type>Main</type>
+      <value>//a/img</value>
+      <webElementGuid>a5640d97-d96d-4e67-9e66-798eb18781f8</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//img[@alt = 'Spider-Man: Across the Spider-Verse' and @src = 'https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg']</value>
+      <webElementGuid>fe5cb368-2438-490a-ab52-730e8304cb21</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>
